@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { signIn } from 'next-auth/react';
 
 type FormData = {
   email: string;
@@ -29,6 +30,7 @@ export const LoginForm = () => {
 
   const onSubmit = (data: FormData) => {
     console.log('on submit', data);
+    signIn('credentials', data);
   };
 
   const { handleSubmit, handleChange, values, errors } = useFormik<FormData>({
