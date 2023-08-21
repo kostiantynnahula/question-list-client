@@ -30,9 +30,6 @@ const handler = NextAuth({
       },
     })
   ],
-  pages: {
-    error: '/'
-  }
 });
 
 export {
