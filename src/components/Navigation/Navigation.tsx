@@ -7,6 +7,8 @@ export const Navigation = () => {
   const session = useSession();
   const router = useRouter();
 
+  console.log(session.data, 'session data');
+
   if (session.status !== 'authenticated') {
     return null;
   }

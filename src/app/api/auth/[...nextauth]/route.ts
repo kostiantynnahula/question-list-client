@@ -44,6 +44,26 @@ const handler = NextAuth({
       },
     })
   ],
+  callbacks: {
+    jwt: async ({token, user}) => {
+      console.log(token, 'token');
+      if (user) {
+        token.id = user.id as number;
+        token.username = user.username;
+        token.accessToken = user.accessToken;
+      }
+
+      return token;
+    },
+    session: async ({session, token}) => {
+      if (token && session.user) {
+        session.user.id = token.id;
+        session.user.username = token.username;
+        session.user.accessToken = token.accessToken;
+      }
+      return session;
+    }
+  },
   pages: {
     error: '/'
   }
