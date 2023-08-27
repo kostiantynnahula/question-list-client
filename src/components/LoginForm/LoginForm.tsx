@@ -1,8 +1,11 @@
 'use client'
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { signIn } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
+import { AlertState, Alert } from '@/components/Alert/Alert';
 
 type FormData = {
   email: string;
@@ -10,7 +13,20 @@ type FormData = {
 }
 
 export const LoginForm = () => {
-  
+
+  const searchParams = useSearchParams();
+  const errorParam = searchParams.get('error')
+  const [alert, setAlert] = useState<AlertState>();
+
+  useEffect(() => {
+    if (errorParam) {
+      setAlert({
+        type: 'error',
+        message: errorParam,
+      });
+    }
+  }, [errorParam])
+
   const validationSchema = Yup.object().shape({
     email: Yup
       .string()
@@ -29,7 +45,6 @@ export const LoginForm = () => {
   };
 
   const onSubmit = (data: FormData) => {
-    console.log('on submit', data);
     signIn('credentials', data);
   };
 
@@ -39,9 +54,16 @@ export const LoginForm = () => {
     validationSchema,
   });
 
+  const onCloseAlert = () => {
+    setAlert(undefined);
+  }
+
   return (
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 h-screen">
+        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+          {alert && <Alert message={alert.message} type={alert.type} onClose={onCloseAlert}/>}
+        </div>
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             Sign in

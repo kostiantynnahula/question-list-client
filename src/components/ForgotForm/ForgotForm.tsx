@@ -1,13 +1,16 @@
 'use client'
+import { useState } from 'react';
 import Link from 'next/link';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { AlertState, Alert } from '@/components/Alert/Alert';
 
 type FormData = {
   email: string;
 }
 
 export const ForgotForm = () => {
+  const [alert, setAlert] = useState<AlertState>();
 
   const validationSchema = Yup.object().shape({
     email: Yup
@@ -21,8 +24,32 @@ export const ForgotForm = () => {
     email: '',
   };
 
-  const onSubmit = (data: FormData) => {
-    console.log('on submit', data);
+  const onSubmit = async (data: FormData) => {
+    const path = `${process.env.NEXT_PUBLIC_API_PATH}/auth/forgot`;
+    const body = JSON.stringify(data);
+
+    const response = await fetch(path, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body,
+    });
+
+    const responseData = await response.json();
+
+    if (response.status === 201) {
+      setAlert({
+        type: 'success',
+        message: 'We send an email with a link to reset password',
+      });
+    } else {
+      const message = responseData.message || 'Something went wrong';
+      setAlert({
+        type: 'error',
+        message
+      });
+    }
   }
 
   const { handleSubmit, handleChange, values, errors } = useFormik<FormData>({
@@ -30,6 +57,10 @@ export const ForgotForm = () => {
     onSubmit,
     validationSchema,
   });
+
+  const onCloseAlert = () => {
+    setAlert(undefined);
+  }
 
   return (
     <>
@@ -41,6 +72,11 @@ export const ForgotForm = () => {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+          {alert && <Alert
+              type={alert.type}
+              message={alert.message}
+              onClose={onCloseAlert}
+            />}
           <form 
             className="space-y-6" 
             method="POST"

@@ -1,8 +1,10 @@
 'use client'
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { AlertState, Alert } from '@/components/Alert/Alert';
 
 type FormData = {
   username: string;
@@ -11,6 +13,8 @@ type FormData = {
 }
 
 export const RegistrationForm = () => {
+
+  const [alert, setAlert] = useState<AlertState>();
 
   const validationSchema = Yup.object().shape({
     username: Yup
@@ -33,8 +37,31 @@ export const RegistrationForm = () => {
     password: '',
   };
 
-  const onSubmit = (data: FormData) => {
-    console.log('on submit', data);
+  const onSubmit = async (data: FormData) => {
+    const body = JSON.stringify(data);
+    const path = `${process.env.NEXT_PUBLIC_API_PATH}/auth/register`;
+    const response = await fetch(path, {
+      method: 'POST',
+      body,
+      headers: {
+        'Content-type': 'application/json',
+      },
+    });
+
+    const responseData = await response.json();
+
+    if (response.status === 201) {
+      setAlert({
+        type: 'success',
+        message: 'Account created successful',
+      });
+    } else {
+      const message = responseData.message || 'Something went wrong';
+      setAlert({
+        type: 'error',
+        message
+      });
+    }
   }
 
   const { handleSubmit, handleChange, values, errors } = useFormik<FormData>({
@@ -42,6 +69,10 @@ export const RegistrationForm = () => {
     onSubmit,
     validationSchema,
   });
+
+  const onCloseAlert = () => {
+    setAlert(undefined);
+  }
 
   return (
     <>
@@ -53,7 +84,12 @@ export const RegistrationForm = () => {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" onSubmit={handleSubmit} method="POST">
+          {alert && <Alert
+            type={alert.type}
+            message={alert.message}
+            onClose={onCloseAlert}
+          />}
+          <form className="space-y-6 mt-3" onSubmit={handleSubmit} method="POST">
             <div>
               <label
                 htmlFor="username"

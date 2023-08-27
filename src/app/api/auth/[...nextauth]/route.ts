@@ -11,11 +11,25 @@ const handler = NextAuth({
     CredentialsProvider({
       id: 'credentials',
       name: 'Credentials',
-      authorize: async (credentials: any) => {
-        return {
-          id: '1',
-          username: 'kostia Nahula',
-          email: 'kostyannagula@gmail.com'
+      authorize: async (credentials: Credential) => {
+        const path = `${process.env.NEXT_PUBLIC_API_PATH}/auth/login`;
+        const body = {
+          email: credentials.email,
+          password: credentials.password,
+        };
+
+        const response = await fetch(path, {
+          method: 'POST',
+          headers: {
+            'Content-type':'application/json'
+          },
+          body: JSON.stringify(body),
+        });
+
+        if (response.status === 200) {
+          return await response.json();
+        } else {
+          throw new Error('Wrong credentials');
         }
       },
       credentials: {
@@ -30,6 +44,9 @@ const handler = NextAuth({
       },
     })
   ],
+  pages: {
+    error: '/'
+  }
 });
 
 export {
