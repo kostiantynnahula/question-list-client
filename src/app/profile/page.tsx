@@ -1,17 +1,26 @@
 'use client'
 
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { AlertState, Alert } from '@/components/Alert/Alert';
+import { redirect } from 'next/navigation';
 
 type FormData = {
   username: string;
   email: string;
-  password: string;
+  password: string | undefined;
 };
 
 const Profile = () => {
+
+  const [alert, setAlert] = useState<AlertState>();
   const session = useSession();
+
+  if (!session.data?.user) {
+    redirect('/');
+  }
 
   const validationSchema = Yup.object().shape({
     username: Yup
@@ -31,7 +40,36 @@ const Profile = () => {
   }
 
   const onSubmit = async (data: FormData) => {
-    // on submit
+
+    if (!data.password?.length) {
+      data.password = undefined;
+    }
+
+    const body = JSON.stringify(data);
+    const path = `${process.env.NEXT_PUBLIC_API_PATH}/auth/profile`
+    const response = await fetch(path, {
+      method: 'PATCH',
+      body,
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': `Bearer ${session.data?.user.accessToken}`
+      }
+    });
+
+    const responseData = await response.json();
+
+    if (response.status === 200) {
+      setAlert({
+        type: 'success',
+        message: 'Profile update successful',
+      });
+    } else {
+      const message = responseData.message || 'Something went wrong';
+      setAlert({
+        type: 'error',
+        message
+      });
+    }
   }
 
   const { handleSubmit, handleChange, values, errors } = useFormik<FormData>({
@@ -39,6 +77,10 @@ const Profile = () => {
     onSubmit,
     validationSchema,
   });
+
+  const onCloseAlert = () => {
+    setAlert(undefined);
+  }
 
   return (
     <div>
@@ -50,6 +92,11 @@ const Profile = () => {
       <main>
         <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
           <div className="max-w-3xl py-6">
+            {alert && <Alert
+              type={alert.type}
+              message={alert.message}
+              onClose={onCloseAlert}
+            />}
             <form className="space-y-6 mt-3" onSubmit={handleSubmit} method="POST">
               <div>
                 <label
@@ -63,7 +110,6 @@ const Profile = () => {
                     id="username"
                     name="username"
                     type="text"
-                    autoComplete="username"
                     onChange={handleChange}
                     value={values.username}
                     className={`block w-full rounded-md ${errors.username ? 'bg-red-50 border border-red-500' : 'border-0'} p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
@@ -83,7 +129,6 @@ const Profile = () => {
                     id="email"
                     name="email"
                     type="email"
-                    autoComplete="email"
                     onChange={handleChange}
                     value={values.email}
                     className={`block w-full rounded-md ${errors.email ? 'bg-red-50 border border-red-500' : 'border-0'} p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
@@ -106,7 +151,6 @@ const Profile = () => {
                     id="password"
                     name="password"
                     type="password"
-                    autoComplete="current-password"
                     onChange={handleChange}
                     value={values.password}
                     className={`block w-full rounded-md ${errors.password ? 'bg-red-50 border border-red-500' : 'border-0'} p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}

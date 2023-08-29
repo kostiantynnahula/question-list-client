@@ -1,12 +1,14 @@
 'use client'
 import { signOut, useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { leftNavLinks, rightNavLinks } from './consts';
 
 export const Navigation = () => {
 
   const session = useSession();
   const router = useRouter();
+  const pathname = usePathname();
 
   if (session.status !== 'authenticated') {
     return null;
@@ -28,21 +30,27 @@ export const Navigation = () => {
             </div>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
-                <Link href="/" className="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Dashboard</Link>
-                <a href="#" className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Team</a>
-                <a href="#" className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Projects</a>
-                <a href="#" className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Calendar</a>
-                <a href="#" className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Reports</a>
+                {leftNavLinks.map((link, key) => (
+                  <Link
+                    key={key}
+                    href={link.path}
+                    className={`${link.path === pathname ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'} rounded-md px-3 py-2 text-sm font-medium`} 
+                    aria-current="page"
+                  >{link.name}</Link>
+                ))}
               </div>
             </div>
           </div>
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              <Link
-                href="/profile"
-                className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-                aria-current="page"
-              >Profile</Link>
+              {rightNavLinks.map((link, key) => (
+                <Link
+                  key={key}
+                  href={link.path}
+                  className={`${link.path === pathname ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'} rounded-md px-3 py-2 text-sm font-medium`}
+                  aria-current="page"
+                >{link.name}</Link>
+              ))}
               <a
                 href="#"
                 className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
