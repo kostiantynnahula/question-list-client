@@ -4,21 +4,9 @@ export const leftNavLinks = [
     path: '/'
   },
   {
-    name: 'Team',
-    path: '#'
-  },
-  {
-    name: 'Projects',
-    path: '#'
-  },
-  {
-    name: 'Calendar',
-    path: '#'
-  },
-  {
-    name: 'Reports',
-    path: '#'
-  },
+    name: 'Tests',
+    path: '/tests'
+  }
 ];
 
 export const rightNavLinks = [
