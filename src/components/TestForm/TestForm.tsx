@@ -1,11 +1,17 @@
 'use client'
-import { useFormik, FormikProvider, FieldArray, Field } from 'formik';
+import { useState } from 'react';
+import { useFormik, FormikProvider } from 'formik';
 import * as Yup from 'yup';
 import { FormData } from '@/components/TestForm/models';
 import { newCategory, newQuestion } from '@/components/TestForm/consts';
-import { checkError } from '@/helpers/errorMessage';
+import { CategoryForm } from './CategoryForm';
+import { useSession } from 'next-auth/react';
+import { AlertState, Alert } from '@/components/Alert/Alert';
 
 export const TestForm = () => {
+  const [alert, setAlert] = useState<AlertState>();
+
+  const session = useSession();
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required().min(5),
@@ -32,8 +38,32 @@ export const TestForm = () => {
     categories: [],
   };
 
-  const onSubmit = (data: FormData) => {
-    console.log(data, 'data');
+  const onSubmit = async (data: FormData) => {
+    const body = JSON.stringify(data);
+    const path = `${process.env.NEXT_PUBLIC_API_PATH}/tests`;
+    const response = await fetch(path, {
+      method: 'POST',
+      body,
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': `Bearer ${session.data?.user.accessToken}`
+      }
+    });
+
+    const responseData = await response.json();
+
+    if (response.status === 201) {
+      setAlert({
+        type: 'success',
+        message: 'Test was created successful',
+      });
+    } else {
+      const message = responseData.message || 'Something went wrong';
+      setAlert({
+        type: 'error',
+        message
+      });
+    }
   };
 
   const formik = useFormik<FormData>({
@@ -56,12 +86,18 @@ export const TestForm = () => {
     categories[index].questions = [...categories[index].questions, newQuestion];
     setFieldValue('categories', categories);
   }
-
-  console.log(errors, 'errors');
-  // console.log(values, 'values');
+  
+  const onCloseAlert = () => {
+    setAlert(undefined);
+  }
 
   return (
     <div>
+      {alert && <Alert
+        type={alert.type}
+        message={alert.message}
+        onClose={onCloseAlert}
+      />}
       <form
         className="space-y-6"
         method="POST"
@@ -87,127 +123,14 @@ export const TestForm = () => {
         </div>
         <FormikProvider value={formik}>
           {values.categories.map((category, i) => (
-            <FieldArray 
-              key={i} 
-              name="categories" 
-              render={(prop) => (
-                <div>
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className={`block text-sm font-medium leading-6 ${checkError(['categories', 'name'], `categories[${i}].name`, errors) ? 'text-red-700 dark:text-red-500' : 'text-gray-900'}`}
-                    >
-                      <div className="flex justify-between">
-                        <>Category</>
-                        <button
-                          className="mt-2 placeholder:font-semibold text-indigo-600 hover:text-indigo-500"
-                          onClick={() => prop.remove(i)}
-                        > - delete category</button>
-                      </div>
-                    </label>
-                    <div className="mt-2">
-                      <Field
-                        name={`categories.${i}.name`}
-                        onChange={handleChange}
-                        value={values.categories[i].name}
-                        className={`block w-full rounded-md ${checkError(['categories', 'name'], `categories[${i}].name`, errors) ? 'bg-red-50 border border-red-500' : 'border-0'} p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
-                      />
-                      {checkError(['categories', 'name'], `categories[${i}].name`, errors) 
-                        && <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                          {checkError(['categories', 'name'], `categories[${i}].name`, errors)}
-                        </p>
-                      }
-                      {category.questions.map((_, qi) => {
-                        return (
-                          <FieldArray
-                            key={qi}
-                            name={`categories.${i}.questions`}
-                            render={(prop) => (
-                              <div className="mt-2">
-                                <div>
-                                  <label
-                                    htmlFor="title"
-                                    className={`block text-sm font-medium leading-6 ${checkError(['categories', 'questions', 'title'], `categories[${i}].questions[${qi}].title`, errors) ? 'text-red-700 dark:text-red-500' : 'text-gray-900'}`}
-                                  >
-                                    <div className="flex justify-between">
-                                      <>Title</>
-                                      <button
-                                        className="mt-2 placeholder:font-semibold text-indigo-600 hover:text-indigo-500"
-                                        onClick={() => prop.remove(qi)}
-                                      > - delete question</button>
-                                    </div>
-                                  </label>
-                                  <Field
-                                    name={`categories.${i}.questions.${qi}.title`}
-                                    onChange={handleChange}
-                                    value={values.categories[i].questions[qi].title}
-                                    className={`block w-full rounded-md ${checkError(['categories', 'questions', 'title'], `categories[${i}].questions[${qi}].title`, errors) ? 'bg-red-50 border border-red-500' : 'border-0'} p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
-                                  />
-                                  {checkError(['categories', 'questions', 'title'], `categories[${i}].questions[${qi}].title`, errors) 
-                                    && <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                      {checkError(['categories', 'questions', 'title'], `categories[${i}].questions[${qi}].title`, errors)}
-                                    </p>
-                                  }
-                                </div>
-                                <div className="mt-2">
-                                  <label
-                                    htmlFor="body"
-                                    className={`block text-sm font-medium leading-6 ${checkError(['categories', 'questions', 'description'], `categories[${i}].questions[${qi}].description`, errors) ? 'text-red-700 dark:text-red-500' : 'text-gray-900'}`}
-                                  >
-                                    Description
-                                  </label>
-                                  <Field
-                                    name={`categories.${i}.questions.${qi}.description`}
-                                    component="textarea"
-                                    rows="3"
-                                    onChange={handleChange}
-                                    value={values.categories[i].questions[qi].description}
-                                    className={`block w-full rounded-md ${checkError(['categories', 'questions', 'description'], `categories[${i}].questions[${qi}].description`, errors) ? 'bg-red-50 border border-red-500' : 'border-0'} p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
-                                  />
-                                  {checkError(['categories', 'questions', 'description'], `categories[${i}].questions[${qi}].description`, errors) 
-                                    && <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                      {checkError(['categories', 'questions', 'description'], `categories[${i}].questions[${qi}].description`, errors)}
-                                    </p>
-                                  }
-                                </div>
-                                <div className="mt-2 mb-5">
-                                  <label
-                                    htmlFor="body"
-                                    className={`block text-sm font-medium leading-6 ${checkError(['categories', 'questions', 'answer'], `categories[${i}].questions[${qi}].answer`, errors) ? 'text-red-700 dark:text-red-500' : 'text-gray-900'}`}
-                                  >
-                                    Answer
-                                  </label>
-                                  <Field
-                                    name={`categories.${i}.questions.${qi}.answer`}
-                                    component="textarea"
-                                    rows="3"
-                                    onChange={handleChange}
-                                    value={values.categories[i].questions[qi].answer}
-                                    className={`block w-full rounded-md ${checkError(['categories', 'questions', 'answer'], `categories[${i}].questions[${qi}].answer`, errors) ? 'bg-red-50 border border-red-500' : 'border-0'} p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
-                                  />
-                                  {checkError(['categories', 'questions', 'answer'], `categories[${i}].questions[${qi}].answer`, errors) 
-                                    && <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                                      {checkError(['categories', 'questions', 'answer'], `categories[${i}].questions[${qi}].answer`, errors)}
-                                    </p>
-                                  }
-                                </div>
-                                <hr/>
-                              </div>
-                            )}
-                          />
-                        );
-                      })}
-                      <div>
-                        <button
-                          type="button"
-                          className="mt-2 font-semibold text-indigo-600 hover:text-indigo-500"
-                          onClick={(e) => onAddQuestion(e, i)}
-                        > + add question</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+            <CategoryForm
+              handleChange={handleChange}
+              errors={errors}
+              values={values}
+              category={category}
+              index={i}
+              onAddQuestion={onAddQuestion}
+              key={i}
             />
           ))}
         </FormikProvider>
