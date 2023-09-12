@@ -1,15 +1,25 @@
 'use client'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFormik, FormikProvider } from 'formik';
 import * as Yup from 'yup';
-import { FormData } from '@/components/TestForm/models';
+import { FormData, Test } from '@/components/TestForm/models';
 import { newCategory, newQuestion } from '@/components/TestForm/consts';
 import { CategoryForm } from './CategoryForm';
 import { useSession } from 'next-auth/react';
 import { AlertState, Alert } from '@/components/Alert/Alert';
 
-export const TestForm = () => {
+type TestFormProps = {
+  test?: Test
+};
+
+export const TestForm = ({
+  test
+}: TestFormProps) => {
   const [alert, setAlert] = useState<AlertState>();
+  const [initialValues, setInitialValues] = useState<FormData>({
+    name: test?.name || '',
+    categories: test?.categories || [],
+  });
 
   const session = useSession();
 
@@ -32,11 +42,6 @@ export const TestForm = () => {
         })
       )
   });
-
-  const initialValues = {
-    name: '',
-    categories: [],
-  };
 
   const onSubmit = async (data: FormData) => {
     const body = JSON.stringify(data);

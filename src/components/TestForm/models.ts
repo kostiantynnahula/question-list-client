@@ -13,3 +13,5 @@ export type FormData = {
   name: string;
   categories: Category[];
 }
+
+export type Test = FormData;
