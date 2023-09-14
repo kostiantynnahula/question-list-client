@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useFormik, FormikProvider } from 'formik';
 import * as Yup from 'yup';
 import { FormData, Test } from '@/components/TestForm/models';
@@ -44,6 +44,14 @@ export const TestForm = ({
   });
 
   const onSubmit = async (data: FormData) => {
+    if (test && test.id) {
+      await onUpdate(test.id, data);
+    } else {
+      await onCreate(data);
+    }
+  };
+
+  const onCreate = async (data: FormData) => {
     const body = JSON.stringify(data);
     const path = `${process.env.NEXT_PUBLIC_API_PATH}/tests`;
     const response = await fetch(path, {
@@ -69,7 +77,35 @@ export const TestForm = ({
         message
       });
     }
-  };
+  }
+
+  const onUpdate = async (testId: string, data: FormData) => {
+    const body = JSON.stringify(data);
+    const path = `${process.env.NEXT_PUBLIC_API_PATH}/tests/${testId}`;
+    const response = await fetch(path, {
+      method: 'PATCH',
+      body,
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': `Bearer ${session.data?.user.accessToken}`
+      }
+    });
+
+    const responseData = await response.json();
+
+    if (response.status === 200) {
+      setAlert({
+        type: 'success',
+        message: 'Test was updated successful',
+      });
+    } else {
+      const message = responseData.message || 'Something went wrong';
+      setAlert({
+        type: 'error',
+        message
+      });
+    }
+  }
 
   const formik = useFormik<FormData>({
     initialValues,

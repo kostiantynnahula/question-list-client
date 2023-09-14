@@ -10,6 +10,7 @@ export type Question = {
 }
 
 export type FormData = {
+  id?: string;
   name: string;
   categories: Category[];
 }
