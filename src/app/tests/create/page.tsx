@@ -1,20 +1,21 @@
-import Link from 'next/link';
+'yse client'
+
 import { TestForm } from '@/components/TestForm/TestForm';
+import { Header } from '@/components/TestForm/TestHeader';
+import { useSession } from 'next-auth/react';
+import { redirect } from 'next/navigation';
 
 const CreateTest = () => {
+
+  const session = useSession();
+
+  if (!session.data?.user) {
+    redirect('/');
+  }
+
   return (
     <div>
-      <header className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex justify-between">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">New test</h1>
-          <div>
-            <Link
-              href="/tests"
-              className='justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm'
-            >Back</Link>
-          </div>
-        </div>
-      </header>
+      <Header title='New test'/>
       <main>
         <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
           <TestForm/>

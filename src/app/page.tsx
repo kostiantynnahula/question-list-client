@@ -4,7 +4,7 @@ import { LoginForm } from '@/components/LoginForm/LoginForm';
 import { Dashboard } from '@/components/Dashboard/Dashboard';
 import { useSession } from 'next-auth/react';
 
-export default function Home() {
+const Home = () => {
   const { status, data } = useSession();
 
   if (status === 'loading') {
@@ -21,3 +21,5 @@ export default function Home() {
     </>
   )
 }
+
+export default Home;
