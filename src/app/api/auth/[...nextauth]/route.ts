@@ -11,7 +11,7 @@ const handler = NextAuth({
     CredentialsProvider({
       id: 'credentials',
       name: 'Credentials',
-      authorize: async (credentials: Credential) => {
+      authorize: async (credentials: any) => {
         const path = `${process.env.NEXT_PUBLIC_API_PATH}/auth/login`;
         const body = {
           email: credentials.email,

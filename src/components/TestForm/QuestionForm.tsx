@@ -29,7 +29,7 @@ export const QuestionForm = ({
     <FieldArray
       key={qi}
       name={`categories.${i}.questions`}
-      render={(prop) => (
+      render={(prop: any) => (
         <div className="mt-2">
           <div>
             <label

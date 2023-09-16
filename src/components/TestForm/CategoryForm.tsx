@@ -30,7 +30,7 @@ export const CategoryForm = ({
     <FieldArray 
       key={i}
       name="categories"
-      render={(prop) => (
+      render={(prop: any) => (
         <div>
           <div>
             <label

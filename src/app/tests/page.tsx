@@ -5,10 +5,13 @@ import Link from 'next/link';
 import useSWR from 'swr';
 import { useSession } from 'next-auth/react';
 import { AlertState, Alert } from '@/components/Alert/Alert';
+import { Modal } from '@/components/Modal/Modal';
 
 const Tests = () => {
 
   const [alert, setAlert] = useState<AlertState>();
+  const [open, setOpen] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState<string>();
   const session = useSession();
 
   const fetcher = async (params: { url: string, token: string, method?: string }) => {
@@ -30,8 +33,8 @@ const Tests = () => {
     token: session.data?.user.accessToken
   }, fetcher);
 
-  const onDelete = async (id: string) => {
-    const path = `${process.env.NEXT_PUBLIC_API_PATH}/tests/${id}`;
+  const handleDelete = async () => {
+    const path = `${process.env.NEXT_PUBLIC_API_PATH}/tests/${deleteId}`;
     
     const response = await fetch(path, {
       method: 'DELETE',
@@ -55,8 +58,19 @@ const Tests = () => {
         message
       });
     }
-
+    setOpen(false);
+    setDeleteId(undefined);
     mutate();
+  }
+
+  const onDelete = (id: string) => {
+    setDeleteId(id);
+    setOpen(true);
+  }
+
+  const onCloseModal = () => {
+    setOpen(false);
+    setDeleteId(undefined);
   }
 
   return (
@@ -74,6 +88,13 @@ const Tests = () => {
       </header>
       <main>
         <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+          <Modal
+            title="Delete a test"
+            content="Are you sure that you want to delete a test?"
+            open={open}
+            onClose={onCloseModal}
+            onSubmit={handleDelete}
+          />
           {alert && <Alert
             type={alert.type}
             message={alert.message}
@@ -81,7 +102,7 @@ const Tests = () => {
           />}
           <ul role="list" className="divide-y divide-gray-100">
             {isLoading && <p>Loading...</p>}
-            {!isLoading && data.length && data.map((test) => (
+            {!isLoading && data.length && data.map((test: any) => (
               <li key={test.id} className="flex justify-between gap-x-6 py-5">
                 <div className="flex min-w-0 gap-x-4">
                   <div className="min-w-0 flex-auto">
