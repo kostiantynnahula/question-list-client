@@ -18,7 +18,7 @@ const Profile = () => {
   const [alert, setAlert] = useState<AlertState>();
   const session = useSession();
 
-  if (!session.data?.user) {
+  if (session.status === 'unauthenticated') {
     redirect('/');
   }
 

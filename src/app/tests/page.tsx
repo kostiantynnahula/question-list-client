@@ -6,7 +6,6 @@ import useSWR from 'swr';
 import { useSession } from 'next-auth/react';
 import { AlertState, Alert } from '@/components/Alert/Alert';
 import { Modal } from '@/components/Modal/Modal';
-import { redirect } from 'next/navigation';
 
 const Tests = () => {
 
@@ -14,10 +13,6 @@ const Tests = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [deleteId, setDeleteId] = useState<string>();
   const session = useSession();
-
-  if (!session.data?.user) {
-    redirect('/');
-  }
 
   const fetcher = async (params: { url: string, token: string, method?: string }) => {
     const path = `${process.env.NEXT_PUBLIC_API_PATH}${params.url}`;
