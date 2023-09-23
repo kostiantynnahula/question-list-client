@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { Header } from '@/components/Utils/Header';
 import { Container } from '@/components/Utils/Container';
 import { ChildNodeProps } from '@/models/layout/models';
+import { ucfirst } from '@/helpers/format.helper';
 
 const CandidatesLayout = ({
   children
@@ -12,11 +13,14 @@ const CandidatesLayout = ({
 
   const isRootRoute = pathname === '/candidates';
 
-  const title = `${isRootRoute ? 'Create' : 'Edit'} Candidate`;
+  const segments = pathname.split('/').filter(el => el);
+  const [segment] = segments?.slice(-1) || '';
+
+  const title = segments.length > 1 ? `${ucfirst(segment)} candidate` : `${ucfirst(segment)} list`;
 
   const link = {
     title: isRootRoute ? 'Create' : 'Back',
-    link: `${pathname}${isRootRoute ? '/create' : ''}`
+    link: isRootRoute ? `${pathname}/create` : '/candidates'
   };
 
   return (

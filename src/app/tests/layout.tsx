@@ -6,6 +6,7 @@ import { Container } from '@/components/Utils/Container';
 import { ChildNodeProps } from '@/models/layout/models';
 import { redirect } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { ucfirst } from '@/helpers/format.helper';
 
 export default function TestsLayout({
   children
@@ -19,10 +20,15 @@ export default function TestsLayout({
   }
 
   const isRootRoute = pathname === '/tests';
-  const title = `${isRootRoute ? 'Create' : 'Edit'} Test`;
+
+  const segments = pathname.split('/').filter(el => el);
+  const [segment] = segments?.slice(-1) || '';
+
+  const title = segments.length > 1 ? `${ucfirst(segment)} test` : `${ucfirst(segment)} list`;
+
   const link = {
     title: isRootRoute ? 'Create' : 'Back',
-    link: `${pathname}${isRootRoute ? '/create' : ''}`
+    link: isRootRoute ? `${pathname}/create` : '/tests',
   };
 
   return (

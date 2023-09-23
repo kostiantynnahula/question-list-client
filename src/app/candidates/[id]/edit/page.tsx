@@ -1,6 +1,8 @@
+import { CandidateForm } from '@/components/Candidate/CandidateForm';
+
 const EditPage = () => {
   return (
-    <>Edit candidate</>
+    <><CandidateForm/></>
   );
 }
 

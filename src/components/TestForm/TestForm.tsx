@@ -1,4 +1,5 @@
 'use client'
+
 import { useState } from 'react';
 import { useFormik, FormikProvider } from 'formik';
 import * as Yup from 'yup';
@@ -16,7 +17,7 @@ export const TestForm = ({
   test
 }: TestFormProps) => {
   const [alert, setAlert] = useState<AlertState>();
-  const [initialValues, setInitialValues] = useState<FormData>({
+  const [initialValues] = useState<FormData>({
     name: test?.name || '',
     categories: test?.categories || [],
   });
@@ -109,8 +110,8 @@ export const TestForm = ({
 
   const formik = useFormik<FormData>({
     initialValues,
-    onSubmit,
     validationSchema,
+    onSubmit,
   });
 
   const { handleSubmit, handleChange, values, errors, setFieldValue } = formik;
