@@ -1,6 +1,8 @@
 const Candidate = () => {
   return (
-    <>Candidate</>
+    <div>
+      Candidate list page
+    </div>
   );
 }
 

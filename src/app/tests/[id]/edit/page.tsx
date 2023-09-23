@@ -1,11 +1,9 @@
 'use client'
-import Link from 'next/link';
 import { TestForm } from '@/components/TestForm/TestForm';
 import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import useSWR from 'swr';
 import { redirect } from 'next/navigation';
-import { Header } from '@/components/TestForm/TestHeader';
 
 const EditPage = () => {
 
@@ -36,14 +34,9 @@ const EditPage = () => {
 
   return (
     <div>
-      <Header title='Edit test'/>
-      <main>
-        <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-          {isLoading && <>Loading...</>}
-          {!isLoading && data && <TestForm test={data}/>}
-        </div>
-      </main>
-  </div>
+      {isLoading && <>Loading...</>}
+      {!isLoading && data && <TestForm test={data}/>}
+    </div>
   );
 }
 

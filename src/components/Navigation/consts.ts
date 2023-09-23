@@ -6,6 +6,10 @@ export const leftNavLinks = [
   {
     name: 'Tests',
     path: '/tests'
+  },
+  {
+    name: 'Candidates',
+    path: '/candidates'
   }
 ];
 
