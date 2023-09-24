@@ -1,6 +1,7 @@
 export type Candidate = {
-  id?: string;
-  fullname: string;
+  id: string;
+  fullName: string;
   email: string;
   resumeLink: string;
+  createdAt?: Date;
 }

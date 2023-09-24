@@ -77,7 +77,7 @@ const Tests = () => {
     <div>
       <Modal
         title="Delete a test"
-        content="Are you sure that you want to delete a test?"
+        content="Are you sure that you want to delete this test?"
         open={open}
         onClose={onCloseModal}
         onSubmit={handleDelete}

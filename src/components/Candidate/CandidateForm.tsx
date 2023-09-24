@@ -3,18 +3,20 @@
 import { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Candidate } from '@/components/Candidate/models';
+import { Candidate } from '@/models/candidates/models';
 
 type CandidateFormProps = {
   candidate?: Candidate;
 }
 
+type CandidateFormState = Pick<Candidate, 'fullName' | 'email' | 'resumeLink'>
+
 export const CandidateForm = ({
   candidate
 }: CandidateFormProps) => {
 
-  const [initialValues] = useState<Candidate>({
-    fullname: candidate?.fullname || '',
+  const [initialValues] = useState<CandidateFormState>({
+    fullName: candidate?.fullName || '',
     email: candidate?.email || '',
     resumeLink: candidate?.resumeLink || '', 
   });
@@ -37,7 +39,7 @@ export const CandidateForm = ({
     console.log(data);
   };
 
-  const formik = useFormik<Candidate>({
+  const formik = useFormik<CandidateFormState>({
     initialValues,
     validationSchema,
     onSubmit,
@@ -54,19 +56,19 @@ export const CandidateForm = ({
          <div>
           <label
             htmlFor="fullname"
-            className={`block text-sm font-medium leading-6 ${errors.fullname ? 'text-red-700 dark:text-red-500' : 'text-gray-900'}`}
+            className={`block text-sm font-medium leading-6 ${errors.fullName ? 'text-red-700 dark:text-red-500' : 'text-gray-900'}`}
           >
             Full name
           </label>
           <div className="mt-2">
             <input
-              id="fullname"
-              name="fullname"
+              id="fullName"
+              name="fullName"
               onChange={handleChange}
-              value={values.fullname}
-              className={`block w-full rounded-md ${errors.fullname ? 'bg-red-50 border border-red-500' : 'border-0'} p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
+              value={values.fullName}
+              className={`block w-full rounded-md ${errors.fullName ? 'bg-red-50 border border-red-500' : 'border-0'} p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
             />
-            {errors.fullname && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{errors.fullname}</p>}
+            {errors.fullName && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{errors.fullName}</p>}
           </div>
         </div>
         <div>

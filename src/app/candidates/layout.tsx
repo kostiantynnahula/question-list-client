@@ -1,8 +1,8 @@
 'use client'
 
 import { usePathname } from 'next/navigation';
-import { Header } from '@/components/Utils/Header';
-import { Container } from '@/components/Utils/Container';
+import { Header } from '@/components/Layout/Header';
+import { Container } from '@/components/Layout/Container';
 import { ChildNodeProps } from '@/models/layout/models';
 import { ucfirst } from '@/helpers/format.helper';
 
