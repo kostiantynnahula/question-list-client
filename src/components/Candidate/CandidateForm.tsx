@@ -4,25 +4,29 @@ import { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { Candidate } from '@/models/candidates/models';
+import { createItem, updateItem } from '@/fetchers/candidates';
+import { useSession } from 'next-auth/react';
+import { SuccessAlert } from '@/components/Layout/Alert';
 
 type CandidateFormProps = {
   candidate?: Candidate;
 }
 
-type CandidateFormState = Pick<Candidate, 'fullName' | 'email' | 'resumeLink'>
+type FormData = Pick<Candidate, 'fullName' | 'email' | 'resumeLink'>
 
 export const CandidateForm = ({
   candidate
 }: CandidateFormProps) => {
 
-  const [initialValues] = useState<CandidateFormState>({
+  const [alert, setAlert] = useState<string>();
+  const [initialValues] = useState<FormData>({
     fullName: candidate?.fullName || '',
     email: candidate?.email || '',
     resumeLink: candidate?.resumeLink || '', 
   });
 
   const validationSchema = Yup.object().shape({
-    fullname: Yup.string()
+    fullName: Yup.string()
       .trim()
       .required(),
     email: Yup.string()
@@ -35,11 +39,40 @@ export const CandidateForm = ({
       .optional(),
   });
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const session = useSession();
+  const token = session.data?.user.accessToken;
+
+  const onSubmit = async (data: FormData) => {
+    const body = JSON.stringify(data);
+
+    if (candidate && candidate.id) {
+      await onUpdate(candidate.id, body);
+    } else {
+      await onCreate(body);
+    }
   };
 
-  const formik = useFormik<CandidateFormState>({
+  const onCreate = async (data: string) => {
+    if (token) {
+      const response = await createItem(data, token);
+
+      if (response.status === 201) {
+        setAlert('Candidate was created successfully!');
+      }
+    }
+  }
+
+  const onUpdate = async (id: string, data: string) => {
+    
+    if (token) {
+      const response = await updateItem(data, id, token);
+      if (response.status === 200) {
+        setAlert('Candidate was updated successfully!');
+      }
+    }
+  }
+
+  const formik = useFormik<FormData>({
     initialValues,
     validationSchema,
     onSubmit,
@@ -49,8 +82,15 @@ export const CandidateForm = ({
 
   return (
     <div>
+      {alert && 
+        <SuccessAlert
+          content={alert}
+          onClose={() => setAlert(undefined)}
+        />
+      }
       <form
         className="space-y-6"
+        method='POST'
         onSubmit={handleSubmit}
       >
          <div>

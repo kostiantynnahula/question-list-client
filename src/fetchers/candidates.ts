@@ -9,6 +9,8 @@ type ListFetcherProps = {
   key: string;
 };
 
+type ItemFetchProps = ListFetcherProps & { id: string };
+
 export const listFetcher = async ({
   token,
 }: ListFetcherProps): Promise<Candidate[]> => {
@@ -27,7 +29,13 @@ export const listFetcher = async ({
   return response.json() as unknown as Candidate[];
 }
 
-export const itemFetcher = async (id: string, token: string): Promise<Candidate> => {
+export const itemFetcher = async ({
+  id,
+  token
+}: ItemFetchProps): Promise<Candidate | undefined> => {
+  if (!token) {
+    return undefined;
+  }
   const response = await fetch(`${basePath}/${id}`, {
     method: HttpMethod.GET,
     headers: {
@@ -42,6 +50,33 @@ export const itemFetcher = async (id: string, token: string): Promise<Candidate>
 export const deleteItem = async (id: string, token: string): Promise<any> => {
   const response = await fetch(`${basePath}/${id}`, {
     method: HttpMethod.DELETE,
+    headers: {
+      ...defaultHeaders,
+      [HttpHeaders.AUTHORIZATION]: `Bearer ${token}`,
+    }
+  });
+
+  return response;
+}
+
+export const createItem = async (body: string, token: string) => {
+  const response = await fetch(basePath, {
+    method: HttpMethod.POST,
+    body,
+    headers: {
+      ...defaultHeaders,
+      [HttpHeaders.AUTHORIZATION]: `Bearer ${token}`,
+    }
+  });
+
+  return response;
+}
+
+export const updateItem = async (body: string, id: string, token: string) => {
+  const path = `${basePath}/${id}`;
+  const response = await fetch(path, {
+    method: HttpMethod.PATCH,
+    body,
     headers: {
       ...defaultHeaders,
       [HttpHeaders.AUTHORIZATION]: `Bearer ${token}`,
