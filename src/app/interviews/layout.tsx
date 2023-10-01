@@ -15,7 +15,7 @@ const InterviewsLayout = ({ children }: ChildNodeProps) => {
   const segments = pathname.split('/').filter(el => el);
   const [segment] = segments?.slice(-1) || '';
 
-  const title = segments.length > 1 ? `${ucfirst(segment)} interview` : `${ucfirst(segment)} list`;
+  const title = segments.length > 1 ? `${ucfirst(segment)} interview` : `${ucfirst(segment)}`;
 
   const link = {
     title: isRootRoute ? 'Create' : 'Back',

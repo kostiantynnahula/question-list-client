@@ -7,18 +7,24 @@ import * as Yup from 'yup';
 import { useSession } from 'next-auth/react';
 import { listFetcher as candidatesFetcher } from '@/fetchers/candidates';
 import { listFetcher as testsFetcher } from '@/fetchers/tests';
-import { createItem } from '@/fetchers/interviews';
+import { createItem, updateItem } from '@/fetchers/interviews';
 import useSWR from 'swr';
+import { SuccessAlert } from '@/components/Layout/Alert';
 
-type FormData = Pick<Interview, 'name' | 'description' | 'testId' | 'candidateId'>;
+type InterviewFormProps = {
+  interview?: Interview;
+}
 
-export const InterviewForm = () => {
+type FormData = Pick<Interview, 'name' | 'description' | 'testId'> & { candidateId: string };
 
+export const InterviewForm = ({ interview }: InterviewFormProps) => {
+
+  const [alert, setAlert] = useState<string>();
   const [initialValues] = useState<FormData>({
-    name: '',
-    description: '',
-    testId: '',
-    candidateId: '',
+    name: interview?.name || '',
+    description: interview?.description || '',
+    testId: interview?.testId ||  '',
+    candidateId: interview?.candidate?.id ||  '',
   });
 
   const validationSchema = Yup.object().shape({
@@ -38,21 +44,40 @@ export const InterviewForm = () => {
 
   const sessionToken = session.data?.user.accessToken;
 
-  const { data: candidates, isLoading: candidatesLoading } = useSWR({
+  const { data: candidates } = useSWR({
     key: 'candidates',
     token: sessionToken
   }, candidatesFetcher);
 
-  const { data: tests, isLoading: testsLoading } = useSWR({
+  const { data: tests } = useSWR({
     key: 'tests',
     token: sessionToken,
   }, testsFetcher);
 
   const onSubmit = async (data: FormData) => {
     if (sessionToken) {
-      const response = await createItem(JSON.stringify(data), sessionToken)
-      console.log(response);
+      const body = JSON.stringify(data);
+      if (interview) {
+       await onUpdate(interview.id, body, sessionToken);
+        
+      } else {
+        await onCreate(body, sessionToken);
+      }
     }
+  }
+
+  const onCreate = async (data: string, sessionToken: string) => {
+    const response = await createItem(data, sessionToken);
+    if (response.status === 201) {
+      setAlert('Candidate was created successfully!');
+    }
+  }
+  
+  const onUpdate = async (id: string, data: string, sessionToken: string) => {
+    const response = await updateItem(id, data, sessionToken);
+    if (response.status === 200) {
+      setAlert('Interview was updated successfully!');
+    } 
   }
 
   const formik = useFormik<FormData>({
@@ -65,6 +90,12 @@ export const InterviewForm = () => {
 
   return (
     <>
+      {alert && 
+        <SuccessAlert
+          content={alert}
+          onClose={() => setAlert(undefined)}
+        />
+      }
       <form
         className="space-y-6"
         method='POST'
