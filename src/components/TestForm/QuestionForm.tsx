@@ -1,5 +1,5 @@
 import { FormikErrors, FormikValues, FieldArray, Field } from 'formik';
-import { FormData } from './models';
+import { FormData } from '../../models/tests/models';
 import { checkError } from '@/helpers/errorMessage';
 
 type QuestionFormProps = {

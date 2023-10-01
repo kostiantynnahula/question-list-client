@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useFormik, FormikProvider } from 'formik';
 import * as Yup from 'yup';
-import { FormData, Test } from '@/components/TestForm/models';
+import { FormData, Test } from '@/models/tests/models';
 import { newCategory, newQuestion } from '@/components/TestForm/consts';
 import { CategoryForm } from './CategoryForm';
 import { useSession } from 'next-auth/react';

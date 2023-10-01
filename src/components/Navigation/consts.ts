@@ -10,6 +10,10 @@ export const leftNavLinks = [
   {
     name: 'Candidates',
     path: '/candidates'
+  },
+  {
+    name: 'Interviews',
+    path: '/interviews'
   }
 ];
 
