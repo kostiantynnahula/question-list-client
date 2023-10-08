@@ -1,6 +1,6 @@
 import { HttpMethod, HttpHeaders } from '@/models/http/methods';
 import { defaultHeaders } from '@/consts/http/headers';
-import { Interview } from '@/models/interviews/models';
+import { Interview, InterviewTest } from '@/models/interviews/models';
 
 export const basePath = `${process.env.NEXT_PUBLIC_API_PATH}/interviews`;
 
@@ -84,4 +84,21 @@ export const updateItem = async (id: string, body: string, token: string) => {
   });
 
   return response;
+}
+
+export const getInterviewWithTest = async ({ id, token }: ItemFetchProps): Promise<InterviewTest | undefined> => {
+  if (!token) {
+    return undefined;
+  }
+
+  const path  = `${basePath}/${id}/test`;
+  const response = await fetch(path, {
+    method: HttpMethod.GET,
+    headers: {
+      ...defaultHeaders,
+      [HttpHeaders.AUTHORIZATION]: `Bearer ${token}`,
+    }
+  });
+
+  return response.json();
 }

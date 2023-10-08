@@ -1,7 +1,7 @@
 import { FormikErrors, FormikValues, FieldArray, Field } from 'formik';
-import { FormData, Category } from '../../models/tests/models';
 import { checkError } from '@/helpers/errorMessage';
 import { QuestionForm } from './QuestionForm';
+import { FormData, CategoryFormData as Category } from '@/components/TestForm/models';
 
 type CategoryFormProps = {
   handleChange: {

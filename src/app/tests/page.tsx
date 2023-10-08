@@ -6,6 +6,7 @@ import useSWR from 'swr';
 import { useSession } from 'next-auth/react';
 import { AlertState, Alert } from '@/components/Alert/Alert';
 import { Modal } from '@/components/Modal/Modal';
+import { Spinner } from '@/components/Layout/Spinner';
 
 const Tests = () => {
 
@@ -88,7 +89,7 @@ const Tests = () => {
         onClose={() => setAlert(undefined)}
       />}
       <ul role="list" className="divide-y divide-gray-100">
-        {isLoading && <p>Loading...</p>}
+        {isLoading && <div className="text-center"><Spinner/></div>}
         {!isLoading && data.length && data.map((test: any) => (
           <li key={test.id} className="flex justify-between gap-x-6 py-5">
             <div className="flex min-w-0 gap-x-4">

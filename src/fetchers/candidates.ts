@@ -33,7 +33,7 @@ export const itemFetcher = async ({
   id,
   token
 }: ItemFetchProps): Promise<Candidate | undefined> => {
-  if (!token) {
+  if (!token || !id) {
     return undefined;
   }
   const response = await fetch(`${basePath}/${id}`, {

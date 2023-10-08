@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useFormik, FormikProvider } from 'formik';
 import * as Yup from 'yup';
-import { FormData, Test } from '@/models/tests/models';
+import { Test } from '@/models/tests/models';
+import { FormData } from '@/components/TestForm/models';
 import { newCategory, newQuestion } from '@/components/TestForm/consts';
 import { CategoryForm } from './CategoryForm';
 import { useSession } from 'next-auth/react';
@@ -125,7 +126,7 @@ export const TestForm = ({
   const onAddQuestion = (e: React.FormEvent<EventTarget>, index: number) => {
     e.preventDefault();
     const categories = values.categories;
-    categories[index].questions = [...categories[index].questions, newQuestion];
+    categories[index].questions = [newQuestion];
     setFieldValue('categories', categories);
   }
   

@@ -15,7 +15,7 @@ export const checkError = (
     
     if (list.length) {
       const nestedList = list.find((item: Record<string, any>) => 
-        item[arg2]
+        item && item[arg2]
       );
       if (nestedList && nestedList[arg2] && nestedList[arg2].length) {
         const message = nestedList[arg2]

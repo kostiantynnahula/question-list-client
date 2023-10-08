@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import useSWR from 'swr';
 import { redirect } from 'next/navigation';
+import { Spinner } from '@/components/Layout/Spinner';
 
 const EditPage = () => {
 
@@ -34,7 +35,7 @@ const EditPage = () => {
 
   return (
     <div>
-      {isLoading && <>Loading...</>}
+      {isLoading && <div className="text-center"><Spinner/></div>}
       {!isLoading && data && <TestForm test={data}/>}
     </div>
   );
