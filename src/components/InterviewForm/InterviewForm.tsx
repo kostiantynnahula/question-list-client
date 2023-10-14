@@ -7,7 +7,7 @@ import * as Yup from 'yup';
 import { useSession } from 'next-auth/react';
 import { listFetcher as candidatesFetcher } from '@/fetchers/candidates';
 import { listFetcher as testsFetcher } from '@/fetchers/tests';
-import { createItem, updateItem } from '@/fetchers/interviews';
+import { InterviewFetcher } from '@/fetchers/interviews';
 import useSWR from 'swr';
 import { SuccessAlert } from '@/components/Layout/Alert';
 
@@ -41,40 +41,40 @@ export const InterviewForm = ({ interview }: InterviewFormProps) => {
   });
 
   const session = useSession();
-
-  const sessionToken = session.data?.user.accessToken;
+  const token = session.data?.user.accessToken;
+  const interviewFetcher = new InterviewFetcher(token || '');
 
   const { data: candidates } = useSWR({
     key: 'candidates',
-    token: sessionToken
+    token
   }, candidatesFetcher);
 
   const { data: tests } = useSWR({
     key: 'tests',
-    token: sessionToken,
+    token,
   }, testsFetcher);
 
   const onSubmit = async (data: FormData) => {
-    if (sessionToken) {
+    if (token) {
       const body = JSON.stringify(data);
       if (interview) {
-       await onUpdate(interview.id, body, sessionToken);
+       await onUpdate(interview.id, body);
         
       } else {
-        await onCreate(body, sessionToken);
+        await onCreate(body);
       }
     }
   }
 
-  const onCreate = async (data: string, sessionToken: string) => {
-    const response = await createItem(data, sessionToken);
+  const onCreate = async (data: string) => {
+    const response = await interviewFetcher.create(data);
     if (response.status === 201) {
       setAlert('Candidate was created successfully!');
     }
   }
   
-  const onUpdate = async (id: string, data: string, sessionToken: string) => {
-    const response = await updateItem(id, data, sessionToken);
+  const onUpdate = async (id: string, data: string) => {
+    const response = await interviewFetcher.update(id, data);
     if (response.status === 200) {
       setAlert('Interview was updated successfully!');
     } 

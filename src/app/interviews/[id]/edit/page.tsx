@@ -5,19 +5,23 @@ import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import useSWR from 'swr';
 import { Spinner } from '@/components/Layout/Spinner';
-import { itemFetcher } from '@/fetchers/interviews';
+import { InterviewFetcher } from '@/fetchers/interviews';
+import { Interview } from '@/models/interviews/models';
 
 const EditPage = () => {
   
   const params = useParams();
   const session = useSession();
   const token = session.data?.user.accessToken;
+  const interviewFetcher = new InterviewFetcher<Interview>(token || '');
 
   const { data, isLoading } = useSWR({
     key: 'item',
     id: params.id,
     token,
-  }, itemFetcher);
+  }, async () => {
+    return token ? await interviewFetcher.interview(params.id as string) : undefined;
+  });
 
   return (
     <>

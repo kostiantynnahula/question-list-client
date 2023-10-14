@@ -5,8 +5,9 @@ import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 import { Spinner } from '@/components/Layout/Spinner';
-import { getInterviewWithTest } from '@/fetchers/interviews';
-import { itemFetcher } from '@/fetchers/candidates';
+import { InterviewTests } from '@/models/interviews/models';
+import { InterviewFetcher } from '@/fetchers/interviews';
+import { itemFetcher as getCandidate } from '@/fetchers/candidates';
 import { CorrectAnswerIcon, WrongAnswerIcon, WithoutAnswerIcon } from './icons';
 
 
@@ -20,6 +21,7 @@ const StartPage = () => {
   const session = useSession();
   const token = session.data?.user.accessToken;
   const initialValues = { correct: [], wrong: [] };
+  const interviewFetcher = new InterviewFetcher(token || '');
 
   const [answers, setAnswers] = useState<Answers>(initialValues);
 
@@ -27,13 +29,15 @@ const StartPage = () => {
     key: 'item',
     id,
     token,
-  }, getInterviewWithTest);
+  }, async () => {
+    return token ? await interviewFetcher.tests<InterviewTests>(id as string) : undefined;
+  });
 
   const { data: candidate, isLoading: candidateLoading } = useSWR({
     key: 'candidate',
     id: interview?.candidateId,
     token
-  }, itemFetcher);
+  }, getCandidate);
 
   const onHandleAnswer = (answerId: string, type: 'correct' | 'wrong') => {
     // TODO refactor it

@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import useSWR from 'swr';
-import { listFetcher, deleteItem } from '@/fetchers/interviews';
+import { InterviewFetcher } from '@/fetchers/interviews';
 import { useSession } from 'next-auth/react';
 import { Spinner } from '@/components/Layout/Spinner';
 import { Modal } from '@/components/Modal/Modal';
 import { SuccessAlert } from '@/components/Layout/Alert';
+import { Interview } from '@/models/interviews/models';
 
 const Interviews = () => {
 
@@ -15,12 +16,13 @@ const Interviews = () => {
   const [deleteId, setDeleteId] = useState<string>();
   const [open, setOpen] = useState<boolean>(false);
   const session = useSession();
-  const sessionToken = session.data?.user.accessToken;
+  const token = session.data?.user.accessToken;
 
-  const { data, isLoading, mutate } = useSWR({
-    key: 'interviews',
-    token: sessionToken,
-  }, listFetcher);
+  const interviewFetcher = new InterviewFetcher<Interview>(token || '');
+
+  const { data, isLoading, mutate } = useSWR({ key: 'interviews', token }, async () => {
+    return token ? await interviewFetcher.interviews() : [];
+  });
 
   const onDelete = (id: string) => {
     setDeleteId(id);
@@ -33,8 +35,8 @@ const Interviews = () => {
   }
 
   const handleDelete = async () => {
-    if (deleteId && sessionToken) {
-      const response = await deleteItem(deleteId, sessionToken);
+    if (deleteId && token) {
+      const response = await interviewFetcher.delete(deleteId);
 
       if (response.status === 200) {
         setAlert('Interview was deleted successfully');

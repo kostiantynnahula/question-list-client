@@ -12,7 +12,7 @@ export type Interview = {
   createdAt: Date;
 }
 
-export type InterviewTest = {
+export type InterviewTests = {
   id: string;
   name: string;
   description: string;
