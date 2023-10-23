@@ -28,7 +28,7 @@ export class InterviewFetcher<T> extends FetcherService {
     return response;
   }
 
-  async answers(id: string) {
+  async answers<O>(id: string): Promise<O[]> {
     const path = `${this.path}/${id}/answers`;
 
     const response = await fetch(path, {
@@ -36,7 +36,7 @@ export class InterviewFetcher<T> extends FetcherService {
       headers: this.defaultHeaders(),
     });
 
-    return response;
+    return response.json() as unknown as O[];
   }
 
   async tests<O>(id: string) {

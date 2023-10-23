@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
@@ -9,7 +9,8 @@ import { InterviewTests } from '@/models/interviews/models';
 import { InterviewFetcher } from '@/fetchers/interviews';
 import { itemFetcher as getCandidate } from '@/fetchers/candidates';
 import { CorrectAnswerIcon, WrongAnswerIcon, WithoutAnswerIcon } from './icons';
-
+import { Answer } from '@/models/answers/models';
+import { AnswerFetcher } from '@/fetchers/answers';
 
 type Answers = {
   correct: string[];
@@ -22,6 +23,7 @@ const StartPage = () => {
   const token = session.data?.user.accessToken;
   const initialValues = { correct: [], wrong: [] };
   const interviewFetcher = new InterviewFetcher(token || '');
+  const answerFetcher = new AnswerFetcher(token || '');
 
   const [answers, setAnswers] = useState<Answers>(initialValues);
 
@@ -33,29 +35,63 @@ const StartPage = () => {
     return token ? await interviewFetcher.tests<InterviewTests>(id as string) : undefined;
   });
 
+  const { data: interviewAnswers } = useSWR({
+    key: 'interview/answers',
+    id,
+  }, async () => {
+    if (token) {
+      return await interviewFetcher.answers<Answer>(id as string);
+    }
+
+    return [];
+  });
+
   const { data: candidate, isLoading: candidateLoading } = useSWR({
     key: 'candidate',
     id: interview?.candidateId,
     token
   }, getCandidate);
 
-  const onHandleAnswer = (answerId: string, type: 'correct' | 'wrong') => {
+  useEffect(() => {
+    const correct: string[] = [], wrong: string[] = [];
+
+    interviewAnswers?.forEach(answer => {
+      if (answer.correct === true) {
+        correct.push(answer.questionId);
+      } else if (answer.correct === false) {
+        wrong.push(answer.questionId);
+      }
+    });
+
+    setAnswers({ wrong, correct })
+
+  }, [interviewAnswers]);
+  
+  const onHandleAnswer = async (questionId: string, type: 'correct' | 'wrong') => {
     // TODO refactor it
+
+    const answer = interviewAnswers?.find(answer => answer.questionId === questionId);
+
+    if (!answer) return;
+
     if (type === 'correct') {
-      const index = answers.wrong.findIndex(i => i === answerId);
+      const index = answers.wrong.findIndex(i => i === questionId);
       index !== -1 && answers.wrong.splice(index, 1);
-      const correct = !answers.correct.includes(answerId) ? [...answers.correct, answerId] : answers.correct;
-      setAnswers({ ...answers, correct }); 
+      const correct = !answers.correct.includes(questionId) ? [...answers.correct, questionId] : answers.correct;
+      setAnswers({ ...answers, correct });
+      await answerFetcher.setAnswer(answer.id, JSON.stringify({ correct: true }));
     } else {
-      const index = answers.correct.findIndex(i => i === answerId);
+      const index = answers.correct.findIndex(i => i === questionId);
       index !== -1 && answers.correct.splice(index, 1);
-      const wrong = !answers.wrong.includes(answerId) ? [...answers.wrong, answerId] : answers.wrong;
-      setAnswers({ ...answers, wrong }); 
+      const wrong = !answers.wrong.includes(questionId) ? [...answers.wrong, questionId] : answers.wrong;
+      setAnswers({ ...answers, wrong });
+      await answerFetcher.setAnswer(answer.id, JSON.stringify({ correct: false }));
     }
   };
 
-  const onFinish = () => {
-    console.log('on finish interview');
+  const onFinish = async () => {
+    const interviewId = id as unknown as string;
+    await interviewFetcher.update(interviewId, JSON.stringify({ status: 'COMPLETED' }));
   }
 
   return (
