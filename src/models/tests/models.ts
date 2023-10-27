@@ -2,6 +2,7 @@ export type Test = {
   id: string;
   name: string;
   categories: Category[];
+  isTemplate: boolean;
 }
 
 export type Category = {

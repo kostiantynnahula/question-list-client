@@ -9,6 +9,8 @@ import { newCategory, newQuestion } from '@/components/TestForm/consts';
 import { CategoryForm } from './CategoryForm';
 import { useSession } from 'next-auth/react';
 import { AlertState, Alert } from '@/components/Alert/Alert';
+import { fetchTemplates } from '@/fetchers/tests';
+import useSWR from 'swr';
 
 type TestFormProps = {
   test?: Test
@@ -21,6 +23,7 @@ export const TestForm = ({
   const [initialValues] = useState<FormData>({
     name: test?.name || '',
     categories: test?.categories || [],
+    isTemplate: test?.isTemplate || false,
   });
 
   const session = useSession();
@@ -119,20 +122,33 @@ export const TestForm = ({
 
   const onAddCategory = (e: React.FormEvent<EventTarget>) => {
     e.preventDefault();
-    console.log(newCategory, 'new category');
     setFieldValue('categories', [...values.categories, {...newCategory}]);
   }
 
   const onAddQuestion = (e: React.FormEvent<EventTarget>, index: number) => {
     e.preventDefault();
     const categories = values.categories;
-    categories[index].questions = [newQuestion];
+    categories[index].questions = [...categories[index].questions, newQuestion];
     setFieldValue('categories', categories);
   }
   
   const onCloseAlert = () => {
     setAlert(undefined);
   }
+
+  const onSelectTemplate = (e: any) => {
+    const templateId = e.target.value;
+    const template = templates?.find((item) => item.id === templateId);
+    if (template) {
+      setFieldValue('categories', template.categories);
+    }
+  }
+
+  const { data: templates } = useSWR({
+    key: 'templates',
+    token: session.data?.user.accessToken || ''
+  }, fetchTemplates);
+
 
   return (
     <div>
@@ -164,6 +180,23 @@ export const TestForm = ({
             {errors.name && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{errors.name}</p>}
           </div>
         </div>
+        <div>
+          <label
+            htmlFor="countries"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >Select an option</label>
+            <select
+              onChange={(e: any) => onSelectTemplate(e)}
+              id="countries"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            >
+              <option selected>Choose a template</option>
+              {templates?.map((template) => (<option
+                key={template.id}
+                value={template.id}
+              >Template 1</option>))}
+            </select>
+        </div>
         <FormikProvider value={formik}>
           {values.categories.map((category, i) => (
             <CategoryForm
@@ -183,6 +216,22 @@ export const TestForm = ({
             className="font-semibold text-indigo-600 hover:text-indigo-500"
             onClick={onAddCategory}
           >+ add category</button>
+        </div>
+        <div>
+        <div className="flex items-center">
+          <input
+            checked={values.isTemplate}
+            id="is-template"
+            type="checkbox"
+            name="isTemplate"
+            onChange={() => setFieldValue('isTemplate', !values.isTemplate)}
+            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+          />
+          <label
+            htmlFor="is-template"
+            className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+          >Is template</label>
+        </div>
         </div>
         <button
           type="submit"

@@ -13,7 +13,7 @@ export const checkError = (
   if (arg1 && arg2 && arg3) {
     const list = errors[arg1];
     
-    if (list.length) {
+    if (list?.length) {
       const nestedList = list.find((item: Record<string, any>) => 
         item && item[arg2]
       );

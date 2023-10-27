@@ -8,4 +8,5 @@ export type CategoryFormData = Pick<Category, 'name'> & {
 export type FormData = Pick<Test, 'name'> & {
   id?: string;
   categories: Array<CategoryFormData>;
+  isTemplate: boolean;
 }
