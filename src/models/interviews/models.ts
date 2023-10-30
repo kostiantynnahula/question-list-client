@@ -19,6 +19,12 @@ export type InterviewTests = {
   test: Test;
   candidateId: string;
   userId: string;
-  status: string;
+  status: InterviewStatus;
   createdAt: Date;
+}
+
+export enum InterviewStatus {
+  CREATED = 'CREATED',
+  STARTED = 'STARTED',
+  COMPLETED = 'COMPLETED'
 }

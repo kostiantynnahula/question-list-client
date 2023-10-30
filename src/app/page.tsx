@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { Spinner } from '@/components/Layout/Spinner';
 
 const Home = () => {
-  const { status } = useSession();
+  const { status, data } = useSession();
 
   if (status === 'loading') {
     return (

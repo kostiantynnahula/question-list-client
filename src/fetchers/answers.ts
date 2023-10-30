@@ -9,7 +9,6 @@ export class AnswerFetcher<T> extends FetcherService {
   async setAnswer(answerId: string, body: string): Promise<Response> {
     const path = `${this.path}/${answerId}`;
 
-    console.log('send request');
     const response = await fetch(path, {
       method: HttpMethod.PATCH,
       headers: this.defaultHeaders(),

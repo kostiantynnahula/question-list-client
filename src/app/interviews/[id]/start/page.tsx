@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import { Spinner } from '@/components/Layout/Spinner';
-import { InterviewTests } from '@/models/interviews/models';
+import { InterviewTests, InterviewStatus } from '@/models/interviews/models';
 import { InterviewFetcher } from '@/fetchers/interviews';
 import { itemFetcher as getCandidate } from '@/fetchers/candidates';
 import { CorrectAnswerIcon, WrongAnswerIcon, WithoutAnswerIcon } from './icons';
@@ -19,7 +19,11 @@ type Answers = {
 
 const StartPage = () => {
   const { id } = useParams();
-  const session = useSession();
+  const router = useRouter();
+  const session = useSession({
+    required: true,
+    onUnauthenticated: () => router.push('/')
+  });
   const token = session.data?.user.accessToken;
   const initialValues = { correct: [], wrong: [] };
   const interviewFetcher = new InterviewFetcher(token || '');
@@ -27,15 +31,24 @@ const StartPage = () => {
 
   const [answers, setAnswers] = useState<Answers>(initialValues);
 
-  const { data: interview, isLoading: interviewLoading } = useSWR({
+  const { data: interview, isLoading: interviewLoading, mutate: reloadInterview } = useSWR({
     key: 'item',
     id,
     token,
   }, async () => {
-    return token ? await interviewFetcher.tests<InterviewTests>(id as string) : undefined;
+    return await interviewFetcher.tests<InterviewTests>(id as string)
   });
 
-  const { data: interviewAnswers } = useSWR({
+  useEffect(() => {
+    if (interview?.status === InterviewStatus.CREATED && token) {
+      interviewFetcher.start(id as string).then(() => {
+        reloadInterview();
+        reloadAnswers();
+      });
+    }
+  }, [interview]);
+
+  const { data: interviewAnswers, mutate: reloadAnswers } = useSWR({
     key: 'interview/answers',
     id,
   }, async () => {
@@ -69,7 +82,6 @@ const StartPage = () => {
   
   const onHandleAnswer = async (questionId: string, type: 'correct' | 'wrong') => {
     // TODO refactor it
-
     const answer = interviewAnswers?.find(answer => answer.questionId === questionId);
 
     if (!answer) return;
@@ -152,7 +164,7 @@ const StartPage = () => {
             </div>
           ))}
           <button 
-            type="button" 
+            type="button"
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
             onClick={() => onFinish()}
           >Finish interview</button>
