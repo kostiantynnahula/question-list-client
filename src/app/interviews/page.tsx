@@ -9,6 +9,8 @@ import { Spinner } from '@/components/Layout/Spinner';
 import { Modal } from '@/components/Modal/Modal';
 import { SuccessAlert } from '@/components/Layout/Alert';
 import { Interview } from '@/models/interviews/models';
+import { InterviewStatus } from '@/models/interviews/models';
+import { blueOutlineBtn } from '@/consts/styles/button';
 
 const Interviews = () => {
 
@@ -20,8 +22,8 @@ const Interviews = () => {
 
   const interviewFetcher = new InterviewFetcher<Interview>(token || '');
 
-  const { data, isLoading, mutate } = useSWR({ key: 'interviews', token }, async () => {
-    return token ? await interviewFetcher.interviews() : [];
+  const { data: interviews, isLoading, mutate } = useSWR({ key: 'interviews', token }, async () => {
+    return await interviewFetcher.interviews();
   });
 
   const onDelete = (id: string) => {
@@ -65,7 +67,7 @@ const Interviews = () => {
           <Spinner/>
         </div>
       }
-      {data && <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+      {interviews && <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th scope="col" className="px-6 py-3">
@@ -86,7 +88,7 @@ const Interviews = () => {
             </tr>
           </thead>
           <tbody>
-            {!isLoading && data && data?.map(interview => (
+            {!isLoading && interviews && interviews?.map(interview => (
               <tr key={interview.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   <Link 
@@ -108,14 +110,14 @@ const Interviews = () => {
                 <td className="px-6 py-4">
                   <Link
                     href={`/interviews/${interview.id}/start`}
-                    className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
+                    className={blueOutlineBtn}
                   >
-                    Start
+                    {interview.status === InterviewStatus.CREATED ? 'Start' : 'Result'}
                   </Link>
                   <button 
                     onClick={() => onDelete(interview.id)}
                     type="button" 
-                    className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
+                    className={blueOutlineBtn}
                   >
                     Delete
                   </button>

@@ -1,12 +1,13 @@
 'use client'
 import Link from 'next/link';
 import useSWR from 'swr';
-import { listFetcher, deleteItem } from '@/fetchers/candidates';
 import { useSession } from 'next-auth/react';
 import { Spinner } from '@/components/Layout/Spinner';
 import { SuccessAlert } from '@/components/Layout/Alert';
 import { useState } from 'react';
 import { Modal } from '@/components/Modal/Modal';
+import { CandidateFetcher } from '@/fetchers/candidates';
+import { Candidate } from '@/models/candidates/models';
 
 const Candidate = () => {
   
@@ -14,16 +15,19 @@ const Candidate = () => {
   const [deleteId, setDeleteId] = useState<string>();
   const [open, setOpen] = useState<boolean>(false);
   const session = useSession();
-  const sessionToken = session.data?.user.accessToken;
+  const sessionToken = session.data?.user.accessToken || '';
+  const candidateFetcer = new CandidateFetcher<Candidate>(sessionToken);
 
   const { data, isLoading, mutate } = useSWR({
     key: 'list',
     token: sessionToken,
-  }, listFetcher);
+  }, async () => {
+    return await candidateFetcer.candidates();
+  });
 
   const handleDelete = async () => {
     if (deleteId && sessionToken) {
-      const response = await deleteItem(deleteId, sessionToken);
+      const response = await candidateFetcer.delete(deleteId);
 
       if (response.status === 200) {
         setAlert('Candidate was deleted successfully');

@@ -4,20 +4,24 @@ import { CandidateForm } from '@/components/Candidate/CandidateForm';
 import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import useSWR from 'swr';
-import { itemFetcher } from '@/fetchers/candidates';
+import { CandidateFetcher } from '@/fetchers/candidates';
+import { Candidate } from '@/models/candidates/models';
 import { Spinner } from '@/components/Layout/Spinner';
 
 const EditPage = () => {
 
   const params = useParams();
   const session = useSession();
-  const token = session.data?.user.accessToken;
+  const token = session.data?.user.accessToken || '';
+  const candidateFetcher = new CandidateFetcher<Candidate>(token);
 
   const { data, isLoading } = useSWR({
     key: 'item',
     id: params.id,
     token
-  }, itemFetcher);
+  }, async () => {
+    return await candidateFetcher.candidate(params.id as string);
+  });
 
   return (
     <div>

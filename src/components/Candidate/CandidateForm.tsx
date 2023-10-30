@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { CandidateFetcher } from '@/fetchers/candidates';
 import { Candidate } from '@/models/candidates/models';
-import { createItem, updateItem } from '@/fetchers/candidates';
 import { useSession } from 'next-auth/react';
 import { SuccessAlert } from '@/components/Layout/Alert';
 
@@ -40,7 +40,8 @@ export const CandidateForm = ({
   });
 
   const session = useSession();
-  const token = session.data?.user.accessToken;
+  const token = session.data?.user.accessToken || '';
+  const candidateFetcher = new CandidateFetcher(token);
 
   const onSubmit = async (data: FormData) => {
     const body = JSON.stringify(data);
@@ -54,7 +55,7 @@ export const CandidateForm = ({
 
   const onCreate = async (data: string) => {
     if (token) {
-      const response = await createItem(data, token);
+      const response = await candidateFetcher.create(data);
 
       if (response.status === 201) {
         setAlert('Candidate was created successfully!');
@@ -65,7 +66,7 @@ export const CandidateForm = ({
   const onUpdate = async (id: string, data: string) => {
     
     if (token) {
-      const response = await updateItem(data, id, token);
+      const response = await candidateFetcher.update(id, data);
       if (response.status === 200) {
         setAlert('Candidate was updated successfully!');
       }

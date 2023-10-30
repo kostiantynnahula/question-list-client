@@ -6,11 +6,13 @@ import { useParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import { Spinner } from '@/components/Layout/Spinner';
 import { InterviewTests, InterviewStatus } from '@/models/interviews/models';
+import { Candidate } from '@/models/candidates/models';
 import { InterviewFetcher } from '@/fetchers/interviews';
-import { itemFetcher as getCandidate } from '@/fetchers/candidates';
+import { CandidateFetcher } from '@/fetchers/candidates';
 import { CorrectAnswerIcon, WrongAnswerIcon, WithoutAnswerIcon } from './icons';
 import { Answer } from '@/models/answers/models';
 import { AnswerFetcher } from '@/fetchers/answers';
+import { blueBgBtn, redOutlineBtn, greenOutlineBtn } from '@/consts/styles/button';
 
 type Answers = {
   correct: string[];
@@ -28,6 +30,7 @@ const StartPage = () => {
   const initialValues = { correct: [], wrong: [] };
   const interviewFetcher = new InterviewFetcher(token || '');
   const answerFetcher = new AnswerFetcher(token || '');
+  const candidateFetcer = new CandidateFetcher<Candidate>(token || '');
 
   const [answers, setAnswers] = useState<Answers>(initialValues);
 
@@ -63,7 +66,9 @@ const StartPage = () => {
     key: 'candidate',
     id: interview?.candidateId,
     token
-  }, getCandidate);
+  }, async () => {
+    return await candidateFetcer.candidate(interview?.candidateId || '');
+  });
 
   useEffect(() => {
     const correct: string[] = [], wrong: string[] = [];
@@ -130,6 +135,7 @@ const StartPage = () => {
         <>
           <p><b>Interview:</b> {interview.name}</p>
           <p><b>Description:</b> {interview.description}</p>
+          <p><b>Status:</b> {interview.status.toLowerCase()}</p>
           <div className="mb-2 mt-2"><hr/></div>
           {interview.test?.categories.map((category, i) => (
             <div key={i}>
@@ -149,12 +155,12 @@ const StartPage = () => {
                     <p className="mb-2">Result:</p>
                     <button 
                       type="button" 
-                      className="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800"
+                      className={greenOutlineBtn}
                       onClick={() => onHandleAnswer(question.id, 'correct')}
                     >Correct</button>
                     <button 
                       type="button" 
-                      className="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
+                      className={redOutlineBtn}
                       onClick={() => onHandleAnswer(question.id, 'wrong')}
                     >Wrong</button>
                   </div>
@@ -165,7 +171,7 @@ const StartPage = () => {
           ))}
           <button 
             type="button"
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+            className={blueBgBtn}
             onClick={() => onFinish()}
           >Finish interview</button>
         </>
