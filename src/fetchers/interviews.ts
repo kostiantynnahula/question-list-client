@@ -28,8 +28,8 @@ export class InterviewFetcher<T> extends FetcherService {
     return response;
   }
 
-  async answers<O>(id: string): Promise<O[]> {
-    const path = `${this.path}/${id}/answers`;
+  async answers<O>(id: string, extended?: boolean): Promise<O[]> {
+    const path = `${this.path}/${id}/answers${extended ? '?extended=true' : ''}`;
 
     const response = await fetch(path, {
       method: HttpMethod.GET,

@@ -5,33 +5,22 @@ import { useSession } from 'next-auth/react';
 import useSWR from 'swr';
 import { redirect } from 'next/navigation';
 import { Spinner } from '@/components/Layout/Spinner';
+import { TestFetcher } from '@/fetchers/tests';
+import { Test } from '@/models/tests/models';
 
 const EditPage = () => {
 
   const params = useParams();
-  const session = useSession();
-  if (!session.data?.user) {
-    redirect('/');
-  }
-
-  const fetcher = async (params: { url: string, token: string }) => {
-    const path = `${process.env.NEXT_PUBLIC_API_PATH}${params.url}`;
-    
-    const response = await fetch(path, {
-      headers: {
-        'Content-type': 'application/json',
-        'Authorization': `Bearer ${params.token}`
-      }
-    });
-
-    return response.json();
-  }
+  const testId = params.id as string;
+  const session = useSession({ required: true });
+  const token = session.data?.user.accessToken || '';
+  const testFetcher = new TestFetcher<Test>(token);
 
   const { data, isLoading } = useSWR({
     url: `/tests/${params.id}`,
     token: session.data?.user.accessToken,
     id: params.id,
-  }, fetcher);
+  }, async () => await testFetcher.test(testId));
 
   return (
     <div>

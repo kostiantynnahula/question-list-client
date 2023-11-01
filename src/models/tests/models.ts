@@ -3,6 +3,7 @@ export type Test = {
   name: string;
   categories: Category[];
   isTemplate: boolean;
+  createdAt?: Date;
 }
 
 export type Category = {

@@ -7,6 +7,8 @@ import { useSession } from 'next-auth/react';
 import { AlertState, Alert } from '@/components/Alert/Alert';
 import { Modal } from '@/components/Modal/Modal';
 import { Spinner } from '@/components/Layout/Spinner';
+import { TestFetcher } from '@/fetchers/tests';
+import { Test } from '@/models/tests/models';
 
 const Tests = () => {
 
@@ -14,35 +16,21 @@ const Tests = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [deleteId, setDeleteId] = useState<string>();
   const session = useSession();
-  const fetcher = async (params: { url: string, token: string, method?: string }) => {
-    const path = `${process.env.NEXT_PUBLIC_API_PATH}${params.url}`;
-    
-    const response = await fetch(path, {
-      method: params.method || 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        'Authorization': `Bearer ${params.token}`
-      }
-    });
+  const token = session.data?.user.accessToken || '';
+  const testFetcher = new TestFetcher<Test>(token);
 
-    return response.json();
-  }
-
-  const { data, isLoading, mutate } = useSWR({
+  const { data = [], isLoading, mutate } = useSWR({
     url: '/tests',
     token: session.data?.user.accessToken
-  }, fetcher);
+  }, async () => {
+    return await testFetcher.tests();
+  });
 
   const handleDelete = async () => {
-    const path = `${process.env.NEXT_PUBLIC_API_PATH}/tests/${deleteId}`;
     
-    const response = await fetch(path, {
-      method: 'DELETE',
-      headers: {
-        'Content-type': 'application/json',
-        'Authorization': `Bearer ${session.data?.user.accessToken}`
-      }
-    });
+    if (!deleteId) return;
+
+    const response = await testFetcher.delete(deleteId)
 
     const responseData = await response.json();
 
@@ -87,28 +75,56 @@ const Tests = () => {
         message={alert.message}
         onClose={() => setAlert(undefined)}
       />}
-      <ul role="list" className="divide-y divide-gray-100">
-        {isLoading && <div className="text-center"><Spinner/></div>}
-        {!isLoading && data.length && data.map((test: any) => (
-          <li key={test.id} className="flex justify-between gap-x-6 py-5">
-            <div className="flex min-w-0 gap-x-4">
-              <div className="min-w-0 flex-auto">
-                <Link href={`/tests/${test.id}/edit`}>
-                  <p className="text-sm font-semibold leading-6 text-gray-900">{test.name}</p>
-                </Link>
-              </div>
-            </div>
-            <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-              <div className="mt-1 flex items-center gap-x-1.5">
-                <button
-                  onClick={() => onDelete(test.id)}
-                  className="justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm"
-                >Delete</button>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {isLoading && <div className="text-center"><Spinner/></div>}
+      <div className="relative overflow-x-auto">
+        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+              <th scope="col" className="px-6 py-3">
+                Name
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Type
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Create at
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {!isLoading && data && data?.map(test => (
+              <tr key={test.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                  <Link
+                    href={`/tests/${test.id}/edit`}
+                    className='font-medium text-blue-600 dark:text-blue-500 hover:underline'
+                  >
+                    {test.name}
+                  </Link>
+                </th>
+                <td className="px-6 py-4">
+                  {test.isTemplate ? 'Template' : 'Test'}
+                </td>
+                <td className="px-6 py-4">
+                  {test.createdAt ? new Date(test.createdAt).toISOString() : ''}
+                </td>
+                <td className="px-6 py-4">
+                  <button
+                    onClick={() => onDelete(test.id)}
+                    type="button"
+                    className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

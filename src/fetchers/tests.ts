@@ -1,47 +1,17 @@
-import { HttpMethod, HttpHeaders } from '@/models/http/methods';
-import { defaultHeaders } from '@/consts/http/headers';
-import { Test } from '@/models/tests/models';
-import useSWR from 'swr';
+import { FetcherService } from '@/fetchers/FetcherService';
 
-export const basePath = `${process.env.NEXT_PUBLIC_API_PATH}/tests`;
-
-type ListFetcherProps = {
-  token: string;
-  key: string;
-};
-
-export const listFetcher = async ({
-  token
-}: ListFetcherProps): Promise<Test[]> => {
-  if (!token) {
-    return [];
+export class TestFetcher<T> extends FetcherService {
+  constructor(token: string) {
+    super(`${process.env.NEXT_PUBLIC_API_PATH}/tests`, token);
   }
 
-  const response = await fetch(basePath, {
-    method: HttpMethod.GET,
-    headers: {
-      ...defaultHeaders,
-      [HttpHeaders.AUTHORIZATION]: `Bearer ${token}`,
-    }
-  });
-
-  return response.json() as unknown as Test[];
-}
-
-export const fetchTemplates = async ({
-  token
-}: ListFetcherProps) => {
-  if (!token) {
-    return [];
+  async tests(): Promise<T[]> {
+    const response = await this.list();
+    return response.json() as unknown as T[];
   }
 
-  const response = await fetch(`${basePath}?isTemplate=true`, {
-    method: HttpMethod.GET,
-    headers: {
-      ...defaultHeaders,
-      [HttpHeaders.AUTHORIZATION]: `Bearer ${token}`,
-    }
-  });
-
-  return response.json() as unknown as Test[];
+  async test(id: string): Promise<T> {
+    const response = await this.get(id);
+    return response.json() as unknown as T;
+  }
 }

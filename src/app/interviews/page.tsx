@@ -109,10 +109,10 @@ const Interviews = () => {
                 </td>
                 <td className="px-6 py-4">
                   <Link
-                    href={`/interviews/${interview.id}/start`}
+                    href={`/interviews/${interview.id}/${interview.status === InterviewStatus.COMPLETED ? 'result' : 'start'}`}
                     className={blueOutlineBtn}
                   >
-                    {interview.status === InterviewStatus.CREATED ? 'Start' : 'Result'}
+                    {interview.status === InterviewStatus.COMPLETED ? 'Result' : 'Start'}
                   </Link>
                   <button 
                     onClick={() => onDelete(interview.id)}
