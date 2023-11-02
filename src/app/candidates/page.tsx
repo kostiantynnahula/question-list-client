@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { Modal } from '@/components/Modal/Modal';
 import { CandidateFetcher } from '@/fetchers/candidates';
 import { Candidate } from '@/models/candidates/models';
+import { PaginationResponse } from '@/models/http/requests';
 
 const Candidate = () => {
   
@@ -22,8 +23,10 @@ const Candidate = () => {
     key: 'list',
     token: sessionToken,
   }, async () => {
-    return await candidateFetcer.candidates();
+    return await candidateFetcer.candidates() as unknown as PaginationResponse<Candidate>;
   });
+
+  const list = data?.list, total = data?.total;
 
   const handleDelete = async () => {
     if (deleteId && sessionToken) {
@@ -86,7 +89,7 @@ const Candidate = () => {
             </tr>
           </thead>
           <tbody>
-            {!isLoading && data && data?.map(candidate => (
+            {!isLoading && list && list?.map(candidate => (
               <tr key={candidate.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   <Link 

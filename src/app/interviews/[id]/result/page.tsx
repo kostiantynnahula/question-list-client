@@ -49,7 +49,7 @@ const Result = () => {
             </div>
             {answers?.map(answer => (
               <div key={answer.id} className="grid grid-cols-4 px-4 py-5 text-sm text-gray-700 border-b border-gray-200 gap-x-16 dark:border-gray-700">
-                <div className="text-gray-500 dark:text-gray-400">{answer.question.title} (<a href="#" className="text-blue-600 hover:underline">view all</a>)</div>
+                <div className="text-gray-500 dark:text-gray-400">{answer.question.title}</div>
                 <div>
                   {answer.correct ? 
                   <svg className="w-3 h-3 text-green-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">

@@ -5,8 +5,12 @@ export class InterviewFetcher<T> extends FetcherService {
     super(`${process.env.NEXT_PUBLIC_API_PATH}/interviews`, token);
   }
 
-  async interviews(): Promise<T[]> {
-    const response = await this.list();
+  async interviews(search?: string): Promise<T[]> {
+    const path = `${this.path}?search=${search}`;
+    const response = await fetch(path, {
+      method: HttpMethod.GET,
+      headers: this.defaultHeaders(),
+    });
     
     return response.json() as unknown as T[];
   }
