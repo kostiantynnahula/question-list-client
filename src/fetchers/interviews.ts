@@ -1,12 +1,19 @@
 import { HttpMethod } from '@/models/http/methods';
 import { FetcherService } from '@/fetchers/FetcherService';
+import { PaginationRequest } from '@/models/http/requests';
 export class InterviewFetcher<T> extends FetcherService {
   constructor(token: string) {
     super(`${process.env.NEXT_PUBLIC_API_PATH}/interviews`, token);
   }
 
-  async interviews(search?: string): Promise<T[]> {
-    const path = `${this.path}?search=${search}`;
+  async interviews({
+    search,
+    orderBy = 'createdAt',
+    order = 'desc',
+    take = 10,
+    skip = 0,
+  }: PaginationRequest): Promise<T[]> {
+    const path = `${this.path}?search=${search}&orderBy=${orderBy}&order=${order}&take=${take}&skip=${skip}`;
     const response = await fetch(path, {
       method: HttpMethod.GET,
       headers: this.defaultHeaders(),

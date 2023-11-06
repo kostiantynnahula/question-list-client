@@ -13,25 +13,38 @@ import { InterviewStatus } from '@/models/interviews/models';
 import { blueOutlineBtn } from '@/consts/styles/button';
 import { useDebounce } from '@/hooks/debounce';
 import { PaginationResponse } from '@/models/http/requests';
+import { Pagination } from '@/components/Pagination/Pagination';
+import { PaginationQuery } from '@/components/Pagination/models';
 
 const Interviews = () => {
 
-  const [search, setSearch] = useState<string>('');
+  const [pagination, setPagination] = useState<PaginationQuery>({
+    page: 0,
+    search: ''
+  });
+  const limit = 10;
   const [alert, setAlert] = useState<string>();
   const [deleteId, setDeleteId] = useState<string>();
   const [open, setOpen] = useState<boolean>(false);
   const session = useSession();
   const token = session.data?.user.accessToken;
 
-  const debouncedSearch = useDebounce(search, 700);
+  const debouncedSearch = useDebounce(pagination.search, 700);
 
   const interviewFetcher = new InterviewFetcher<Interview>(token || '');
 
-  const { data, isLoading, mutate } = useSWR({ key: 'interviews', token, search: debouncedSearch }, async () => {
-    return await interviewFetcher.interviews(debouncedSearch) as unknown as PaginationResponse<Interview>;
+  const { data, isLoading, mutate } = useSWR({ 
+    key: `interviews`,
+    token,
+    search: debouncedSearch
+  }, async () => {
+    return await interviewFetcher.interviews({
+      search: debouncedSearch, 
+      skip: pagination.page * limit 
+    }) as unknown as PaginationResponse<Interview>;
   });
 
-  const list = data?.list, total = data?.total;
+  const list = data?.list, total = data?.total || 0;
 
   const onDelete = (id: string) => {
     setDeleteId(id);
@@ -61,7 +74,12 @@ const Interviews = () => {
   }
 
   const handleSearch = (value: string) => {
-    setSearch(value);
+    setPagination({ ...pagination, search: value });
+  }
+
+  const onChangePage = (value: number) => {
+    const page = value < 0 ? 0 : value;
+    setPagination({ ...pagination, page });
   }
 
   return (
@@ -81,7 +99,7 @@ const Interviews = () => {
         <div>
           <div className="mb-4 w-1/3">
             <input
-              value={search}
+              value={pagination.search}
               onChange={(e) => handleSearch(e.target.value)}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="Search..."
@@ -147,17 +165,13 @@ const Interviews = () => {
             </tbody>
           </table>
           <div className="mt-4">
-            <div className="flex flex-col items-end">
-              <span className="text-sm text-gray-700 dark:text-gray-400">
-                  Showing <span className="font-semibold text-gray-900 dark:text-white">1 </span> 
-                  to <span className="font-semibold text-gray-900 dark:text-white"> 10</span> of 
-                  <span className="font-semibold text-gray-900 dark:text-white"> 100</span> Entries
-              </span>
-              <div className="inline-flex mt-2 xs:mt-0">
-                <button type="button" className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800">Prev</button>
-                <button type="button" className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800">Next</button>
-              </div>
-            </div>
+            <Pagination
+              page={pagination.page}
+              limit={limit}
+              total={total}
+              length={list.length}
+              onChangePage={onChangePage}
+            />
           </div>
         </div>
       }

@@ -1,7 +1,9 @@
 export type PaginationRequest = {
-  search: string;
-  orderBy: string;
-  order: 'asc' | 'desc';
+  search?: string;
+  orderBy?: string;
+  order?: 'asc' | 'desc';
+  take?: number;
+  skip?: number;
 };
 
 export type PaginationResponse<T> = {

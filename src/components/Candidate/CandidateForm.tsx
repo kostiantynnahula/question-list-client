@@ -35,8 +35,8 @@ export const CandidateForm = ({
       .required(),
     resumeLink: Yup.string()
       .trim()
-      .url()
-      .optional(),
+      .optional()
+      .url(),
   });
 
   const session = useSession();
