@@ -5,11 +5,13 @@ import { Interview } from '@/models/interviews/models';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useSession } from 'next-auth/react';
-import { listFetcher as candidatesFetcher } from '@/fetchers/candidates';
-import { listFetcher as testsFetcher } from '@/fetchers/tests';
+import { CandidateFetcher } from '@/fetchers/candidates';
+import { TestFetcher } from '@/fetchers/tests';
 import { InterviewFetcher } from '@/fetchers/interviews';
 import useSWR from 'swr';
 import { SuccessAlert } from '@/components/Layout/Alert';
+import { Candidate } from '@/models/candidates/models';
+import { Test } from '@/models/tests/models';
 
 type InterviewFormProps = {
   interview?: Interview;
@@ -41,18 +43,24 @@ export const InterviewForm = ({ interview }: InterviewFormProps) => {
   });
 
   const session = useSession();
-  const token = session.data?.user.accessToken;
-  const interviewFetcher = new InterviewFetcher(token || '');
+  const token = session.data?.user.accessToken || '';
+  const interviewFetcher = new InterviewFetcher<Interview>(token);
+  const candidateFetcher = new CandidateFetcher<Candidate>(token);
+  const testFetcher = new TestFetcher<Test>(token);
 
   const { data: candidates } = useSWR({
-    key: 'candidates',
+    key: 'candidates/list',
     token
-  }, candidatesFetcher);
+  }, async () => {
+    return await candidateFetcher.candidatesList();
+  });
 
   const { data: tests } = useSWR({
     key: 'tests',
     token,
-  }, testsFetcher);
+  }, async () => {
+    return await testFetcher.testList();
+  });
 
   const onSubmit = async (data: FormData) => {
     if (token) {

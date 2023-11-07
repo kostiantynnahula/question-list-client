@@ -24,6 +24,15 @@ export class CandidateFetcher<T> extends FetcherService {
     return response.json() as unknown as T[];
   }
 
+  async candidatesList(): Promise<T[]> {
+    const path = `${this.path}/list`;
+    const response = await fetch(path, {
+      method: HttpMethod.GET,
+      headers: this.defaultHeaders(),
+    });
+    return response.json() as unknown as T[];
+  }
+
   async candidate(id: string): Promise<T> {
     const response = await this.get(id);
     return response.json() as unknown as T;
