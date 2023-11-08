@@ -16,7 +16,7 @@ const CandidatesLayout = ({
   const segments = pathname.split('/').filter(el => el);
   const [segment] = segments?.slice(-1) || '';
 
-  const title = segments.length > 1 ? `${ucfirst(segment)} candidate` : `${ucfirst(segment)} list`;
+  const title = segments.length > 1 ? `${ucfirst(segment)} candidate` : `${ucfirst(segment)}`;
 
   const link = {
     title: isRootRoute ? 'Create' : 'Back',

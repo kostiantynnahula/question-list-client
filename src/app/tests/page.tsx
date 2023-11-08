@@ -98,7 +98,7 @@ const Tests = () => {
       {isLoading && <div className="text-center"><Spinner/></div>}
       {list &&
         <div className="relative overflow-x-auto">
-          <div className="mb-4 w-1/3">
+          <div className="mb-4 w-1/4">
             <input
               value={pagination.search}
               onChange={(e) => handleSearch(e.target.value)}
@@ -109,16 +109,16 @@ const Tests = () => {
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
-                <th scope="col" className="px-6 py-3">
+                <th scope="col" className="px-6 py-3 w-1/3">
                   Name
                 </th>
-                <th scope="col" className="px-6 py-3">
+                <th scope="col" className="px-6 py-3 w-1/3">
                   Type
                 </th>
                 <th scope="col" className="px-6 py-3">
                   Create at
                 </th>
-                <th scope="col" className="px-6 py-3">
+                <th scope="col" className="px-6 py-3 text-center w-60">
                   Actions
                 </th>
               </tr>
@@ -134,13 +134,13 @@ const Tests = () => {
                       {test.name}
                     </Link>
                   </th>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 w-1/3">
                     {test.isTemplate ? 'Template' : 'Test'}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 w-1/3">
                     {test.createdAt ? new Date(test.createdAt).toISOString() : ''}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-center w-60">
                     <button
                       onClick={() => onDelete(test.id)}
                       type="button"
@@ -154,14 +154,14 @@ const Tests = () => {
             </tbody>
           </table>
           <div className="mt-4">
-              <Pagination
-                page={pagination.page}
-                limit={limit}
-                total={total}
-                length={list.length}
-                onChangePage={onChangePage}
-              />
-            </div>
+            <Pagination
+              page={pagination.page}
+              limit={limit}
+              total={total}
+              length={list.length}
+              onChangePage={onChangePage}
+            />
+          </div>
         </div>
       }
       <Modal

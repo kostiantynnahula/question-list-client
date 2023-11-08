@@ -24,7 +24,7 @@ export default function TestsLayout({
   const segments = pathname.split('/').filter(el => el);
   const [segment] = segments?.slice(-1) || '';
 
-  const title = segments.length > 1 ? `${ucfirst(segment)} test` : `${ucfirst(segment)} list`;
+  const title = segments.length > 1 ? `${ucfirst(segment)} test` : `${ucfirst(segment)}`;
 
   const link = {
     title: isRootRoute ? 'Create' : 'Back',

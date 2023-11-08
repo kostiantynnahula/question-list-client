@@ -93,7 +93,7 @@ const Candidate = () => {
       }
       {list &&
         <div className="relative overflow-x-auto">
-          <div className="mb-4 w-1/3">
+          <div className="mb-4 w-1/4">
             <input
               value={pagination.search}
               onChange={(e) => handleSearch(e.target.value)}
@@ -104,16 +104,16 @@ const Candidate = () => {
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
-                <th scope="col" className="px-6 py-3">
+                <th scope="col" className="px-6 py-3 w-1/3">
                   Full Name
                 </th>
-                <th scope="col" className="px-6 py-3">
+                <th scope="col" className="px-6 py-3 w-1/3">
                   Email
                 </th>
                 <th scope="col" className="px-6 py-3">
                   Create at
                 </th>
-                <th scope="col" className="px-6 py-3">
+                <th scope="col" className="px-6 py-3 text-center w-60">
                   Actions
                 </th>
               </tr>
@@ -129,13 +129,13 @@ const Candidate = () => {
                       {candidate.fullName}
                     </Link>
                   </th>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 w-1/3">
                     {candidate.email}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 w-1/3">
                     {candidate.createdAt ? new Date(candidate.createdAt).toISOString() : ''}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-center w-60">
                     <button
                       onClick={() => onDelete(candidate.id)}
                       type="button"
