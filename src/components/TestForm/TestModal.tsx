@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { Fragment } from 'react';
+import { useState, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';

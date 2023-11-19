@@ -7,8 +7,8 @@ export class TestFetcher<T> extends FetcherService {
     super(`${process.env.NEXT_PUBLIC_API_PATH}/tests`, token);
   }
 
-  async testList(): Promise<T[]> {
-    const path = `${this.path}/list`;
+  async testList(isTemplate?: boolean): Promise<T[]> {
+    const path = `${this.path}/list?isTemplate=${isTemplate}`;
     const response = await fetch(path, {
       method: HttpMethod.GET,
       headers: this.defaultHeaders(),
