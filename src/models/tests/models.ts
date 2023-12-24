@@ -2,6 +2,7 @@ export type Test = {
   id: string;
   name: string;
   questions: Question[];
+  categories: Category[];
   isTemplate: boolean;
   createdAt?: Date;
 }
@@ -18,7 +19,7 @@ export type Question = {
   description: string;
   answer: string;
   order: number;
-  categoryId?: string;
+  categoryId?: string | null;
   testId?: string;
   createdAt?: Date;
 }

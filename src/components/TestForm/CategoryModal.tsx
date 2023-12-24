@@ -6,11 +6,14 @@ import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { Spinner } from '@/components/Layout/Spinner';
 import { CategoryFormData } from '@/components/TestForm/models';
+import { Category } from '@/models/tests/models';
 
 type ModalProps = {
   open: boolean;
   loading: boolean;
+  category: Category | null;
   onClose: () => void;
+  onEditHandler: (category: Category) => void;
   onSubmitHandler: (data: CategoryFormData) => void;
 };
 
@@ -19,18 +22,24 @@ type FormData = { name: string };
 export const CategoryModal = ({
   open,
   loading,
+  category,
   onClose,
+  onEditHandler,
   onSubmitHandler
 }: ModalProps) => {
   
-  const [initialValues] = useState<FormData>({ name: '' });
+  const [initialValues] = useState<FormData>({ name: category?.name || '' });
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required().min(5),
   });
 
   const onSubmit = async (data: FormData) => {
-    onSubmitHandler(data);
+    if (category) {
+      onEditHandler({ ...category, ...data });
+    } else {
+      onSubmitHandler(data);
+    }
   };
 
   const { values, errors, handleSubmit, handleChange } = useFormik({
@@ -71,7 +80,7 @@ export const CategoryModal = ({
                     <div className="">
                       <div className="mt-3 text-center sm:mt-0 sm:text-left">
                         <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                          Create a new category
+                          {category ? 'Update the' : 'Create a'} new category
                         </Dialog.Title>
                         <div className="mt-2">
                           <form
@@ -102,7 +111,7 @@ export const CategoryModal = ({
                                 type="submit"
                                 className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto"
                               >
-                                <span className='pr-2'>Create</span>{loading && <Spinner radius={5}/>}
+                                <span>{category ? 'Update' : 'Create'}</span>{loading && <Spinner radius={5}/>}
                               </button>
                               <button
                                 type="button"

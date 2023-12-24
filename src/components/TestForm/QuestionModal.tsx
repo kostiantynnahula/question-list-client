@@ -5,14 +5,16 @@ import { Dialog, Transition } from '@headlessui/react';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { Spinner } from '@/components/Layout/Spinner';
-import { Question } from '@/models/tests/models';
+import { Question, Category } from '@/models/tests/models';
 import { QuestionFormData } from '@/components/TestForm/models';
 
 type ModalProps = {
   open: boolean;
   loading: boolean;
   question: Question | null;
+  categories: Category[];
   onClose: () => void;
+  onEditHandler: (data: Question) => void;
   onSubmitHandler: (data: QuestionFormData) => void;
 };
 
@@ -20,7 +22,9 @@ export const QuestionModal = ({
   open,
   loading,
   question,
+  categories,
   onClose,
+  onEditHandler,
   onSubmitHandler,
 }: ModalProps) => {
 
@@ -28,18 +32,21 @@ export const QuestionModal = ({
     title: question?.title || '',
     description: question?.description || '',
     answer: question?.answer || '',
-    categoryId: question?.categoryId || '',
+    categoryId: question?.categoryId || null,
   });
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required().min(5),
     description: Yup.string().required().min(5),
     answer: Yup.string().required().min(5),
-    categoryId: Yup.string().optional(),
   });
 
   const onSubmit = async (data: QuestionFormData) => {
-    onSubmitHandler(data);
+    if (question) {
+      onEditHandler({ ...question, ...data });
+    } else {
+      onSubmitHandler(data);
+    }
   };
 
   const {
@@ -86,7 +93,7 @@ export const QuestionModal = ({
                     <div className="">
                       <div className="mt-3 text-center sm:mt-0 sm:text-left">
                         <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                          Create a new question
+                          {question ? 'Update the' : 'Create a'} new question
                         </Dialog.Title>
                         <div className="mt-2">
                           <form
@@ -99,14 +106,15 @@ export const QuestionModal = ({
                                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                               >Select an option</label>
                                 <select
-                                  onChange={(e: any) => setFieldValue('categoryId', e.target.value)}
+                                  onChange={(e: any) => setFieldValue('categoryId', e.target.value || null)}
                                   id="category"
                                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                  value={values.categoryId || ''}
                                 >
-                                  <option selected>Choose a category</option>
-                                  <option value='1'>Category 1</option>
-                                  <option value='2'>Category 2</option>
-                                  <option value='3'>Category 3</option>
+                                  <option value={""}>Choose a category</option>
+                                  {categories.map(category =>
+                                    <option key={category.id} value={category.id}>{category.name}</option>)
+                                  }
                                 </select>
                             </div>
                             <div>
@@ -171,7 +179,7 @@ export const QuestionModal = ({
                                 type="submit"
                                 className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto"
                               >
-                                <span className='pr-2'>Create</span>{loading && <Spinner radius={5}/>}
+                                <span>{question ? 'Update' : 'Create'}</span>{loading && <Spinner radius={5}/>}
                               </button>
                               <button
                                 type="button"
