@@ -32,6 +32,16 @@ export class TestFetcher<T> extends FetcherService {
     return response.json() as unknown as T[];
   }
 
+  async clone(testId: string, body: string) {
+    const path = `${this.path}/${testId}/clone`;
+
+    return await this.sendRequest(path, {
+      method: HttpMethod.POST,
+      headers: this.defaultHeaders(),
+      body,
+    });
+  }
+
   async test(id: string): Promise<T> {
     const response = await this.get(id);
     return response.json() as unknown as T;

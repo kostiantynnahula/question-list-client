@@ -15,6 +15,7 @@ import { AlertState, Alert } from '@/components/Alert/Alert';
 import { Question as QuestionItem } from '@/components/TestForm/Question';
 import { CategoryModal } from '@/components/TestForm/CategoryModal';
 import { QuestionModal } from '@/components/TestForm/QuestionModal';
+import { TemplateModal } from '@/components/TestForm/TemplateModal';
 import { FormData, CategoryFormData, QuestionFormData } from '@/components/TestForm/models';
 import { Modal } from '@/components/Modal/Modal';
 import { Category as CategoryItem } from '@/components/TestForm/Category';
@@ -46,8 +47,10 @@ const EditPage = () => {
   const [alert, setAlert] = useState<AlertState>();
   const [showCategoryModal, setShowCategoryModal] = useState<boolean>(false);
   const [showQuestionModal, setShowQuestionModal] = useState<boolean>(false);
+  const [showTemplateModal, setShowTemplateModal] = useState<boolean>(false);
   const [loadingCategoryModal, setLoadingCategoryModal] = useState<boolean>(false);
   const [loadingQuestionModal, setLoadingQuestionModal] = useState<boolean>(false);
+  const [loadingTemplateModal, setLoadingTemplateModal] = useState<boolean>(false);
   const [showDeleteQuestionModal, setShowDeleteQuestionModal] = useState<boolean>(false);
   const [editQuestion, setEditQuestion] = useState<Question|null>(null);
   const [deleteQuestionId, setDeleteQuestionId] = useState<string|null>(null);
@@ -66,7 +69,6 @@ const EditPage = () => {
 
   const onSubmit = async (data: FormData) => {
     if (test) {
-      
       const response = await testFetcher.update(test.id, JSON.stringify(data));
       
       const responseData = await response.json();
@@ -98,10 +100,6 @@ const EditPage = () => {
 
   const onCloseAlert = () => {
     setAlert(undefined);
-  }
-
-  const onSelectTemplate = (e: React.FormEvent<EventTarget>) => {
-    console.log('on select template');
   }
 
   const { data: templates } = useSWR({
@@ -221,6 +219,16 @@ const EditPage = () => {
     setDeleteCategoryId(null);
   }
 
+  const handleCloneTemplate = async (templateId: string) => {
+    setLoadingTemplateModal(true);
+    if (showTemplateModal) {
+      testFetcher.clone(testId, JSON.stringify({ templateId }));
+    }
+    setShowTemplateModal(false);
+    setLoadingTemplateModal(false);
+    mutate();
+  }
+
   const onChangeQuestionOrder = async (questionId: string, order: number) => {
     if (test) {
       const body = JSON.stringify({ order: order < 0 ? 0 : order });
@@ -244,41 +252,34 @@ const EditPage = () => {
             method="POST"
             onSubmit={handleSubmit}
           >
-            <div>
-              <label
-                htmlFor="email"
-                className={`block text-sm font-medium leading-6 ${errors.name ? 'text-red-700 dark:text-red-500' : 'text-gray-900'}`}
-              >
-                Name
-              </label>
-              <div className="mt-2">
-                <input
-                  id="name"
-                  name="name"
-                  onChange={handleChange}
-                  value={values.name}
-                  className={`block w-full rounded-md ${errors.name ? 'bg-red-50 border border-red-500' : 'border-0'} p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
-                />
-                {errors.name && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{errors.name}</p>}
+            <div className='grid grid-cols-3'>
+              <div className='col-span-2'>
+                <label
+                  htmlFor="email"
+                  className={`block text-sm font-medium leading-6 ${errors.name ? 'text-red-700 dark:text-red-500' : 'text-gray-900'}`}
+                >
+                  Name
+                </label>
+                <div className="mt-2">
+                  <input
+                    id="name"
+                    name="name"
+                    onChange={handleChange}
+                    value={values.name}
+                    className={`block w-full rounded-md ${errors.name ? 'bg-red-50 border border-red-500' : 'border-0'} p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
+                  />
+                  {errors.name && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{errors.name}</p>}
+                </div>
+              </div>
+              <div className='flex place-items-end pl-3'>
+                <button
+                  type='button'
+                  className="font-semibold text-indigo-600 hover:text-indigo-500 leading-10"
+                  onClick={() => setShowTemplateModal(true)}
+                >+ Add a template questions</button>
               </div>
             </div>
-            <div>
-              <label
-                htmlFor="template"
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-              >Select an option</label>
-              <select
-                onChange={(e: any) => onSelectTemplate(e)}
-                id="template"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              >
-                <option selected>Choose a template</option>
-                {templates?.map((template) => (<option
-                  key={template.id}
-                  value={template.id}
-                >Template 1</option>))}
-              </select>
-            </div>
+          
             <div>
               <button
                 type='button'
@@ -371,6 +372,13 @@ const EditPage = () => {
           content='Are you sure you want to delete this category?'
           onClose={onCloseDeleteCategoryModal}
           onSubmit={handleDeleteCategory}
+        />}
+        {showTemplateModal && <TemplateModal
+          open={showTemplateModal}
+          onClose={() => setShowTemplateModal(false)}
+          templates={templates || []}
+          loading={loadingTemplateModal}
+          onClone={handleCloneTemplate}
         />}
       </div>
     </div>

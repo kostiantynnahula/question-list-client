@@ -49,7 +49,7 @@ export class FetcherService {
   }
 
   async update(id: string, body: string) {
-    const path  = `${this.path}/${id}`;
+    const path = `${this.path}/${id}`;
   
     return await this.sendRequest(path, {
       method: HttpMethod.PATCH,

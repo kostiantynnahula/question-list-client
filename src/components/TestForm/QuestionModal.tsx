@@ -74,7 +74,7 @@ export const QuestionModal = ({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"/>
           </Transition.Child>
 
           <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
@@ -93,7 +93,7 @@ export const QuestionModal = ({
                     <div className="">
                       <div className="mt-3 text-center sm:mt-0 sm:text-left">
                         <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                          {question ? 'Update the' : 'Create a'} new question
+                          {question ? 'Update the' : 'Create a new'} question
                         </Dialog.Title>
                         <div className="mt-2">
                           <form

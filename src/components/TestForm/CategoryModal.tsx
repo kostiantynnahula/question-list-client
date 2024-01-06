@@ -80,7 +80,7 @@ export const CategoryModal = ({
                     <div className="">
                       <div className="mt-3 text-center sm:mt-0 sm:text-left">
                         <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                          {category ? 'Update the' : 'Create a'} new category
+                          {category ? 'Update the' : 'Create a new'} category
                         </Dialog.Title>
                         <div className="mt-2">
                           <form
