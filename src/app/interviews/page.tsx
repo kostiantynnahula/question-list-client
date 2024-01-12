@@ -105,74 +105,79 @@ const Interviews = () => {
               placeholder="Search..."
             />
           </div>
-          <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-              <tr>
-                <th scope="col" className="px-6 py-3 w-1/4">
-                  Name
-                </th>
-                <th scope="col" className="px-6 py-3 w-1/4">
-                  Candidate full name
-                </th>
-                <th scope="col" className="px-6 py-3 w-1/5">
-                  Candidate email
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Create at
-                </th>
-                <th scope="col" className="px-6 py-3 text-center w-60">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {!isLoading && list && list?.map(interview => (
-                <tr key={interview.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                  <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white w-1/4">
-                    <Link 
-                      href={`/interviews/${interview.id}/edit`}
-                      className='font-medium text-blue-600 dark:text-blue-500 hover:underline'
-                    >
-                      {interview.name}
-                    </Link>
+          {!isLoading && data.total > 0 && <div>
+            <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                  <th scope="col" className="px-6 py-3 w-1/4">
+                    Name
                   </th>
-                  <td className="px-6 py-4 w-1/4">
-                    {interview.candidate.fullName}
-                  </td>
-                  <td className="px-6 py-4 w-1/5">
-                    {interview.candidate.email}
-                  </td>
-                  <td className="px-6 py-4">
-                    {new Date(interview.createdAt).toISOString()}
-                  </td>
-                  <td className="px-6 py-4 text-center w-60">
-                    <Link
-                      href={`/interviews/${interview.id}/${interview.status === InterviewStatus.COMPLETED ? 'result' : 'start'}`}
-                      className={blueOutlineBtn}
-                    >
-                      {interview.status === InterviewStatus.COMPLETED ? 'Result' : 'Start'}
-                    </Link>
-                    <button 
-                      onClick={() => onDelete(interview.id)}
-                      type="button" 
-                      className={blueOutlineBtn}
-                    >
-                      Delete
-                    </button>
-                  </td>
+                  <th scope="col" className="px-6 py-3 w-1/4">
+                    Candidate full name
+                  </th>
+                  <th scope="col" className="px-6 py-3 w-1/5">
+                    Candidate email
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Create at
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-center w-60">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="mt-4">
-            <Pagination
-              page={pagination.page}
-              limit={limit}
-              total={total}
-              length={list.length}
-              onChangePage={onChangePage}
-            />
-          </div>
+              </thead>
+              <tbody>
+                {list?.map(interview => (
+                  <tr key={interview.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white w-1/4">
+                      <Link 
+                        href={`/interviews/${interview.id}/edit`}
+                        className='font-medium text-blue-600 dark:text-blue-500 hover:underline'
+                      >
+                        {interview.name}
+                      </Link>
+                    </th>
+                    <td className="px-6 py-4 w-1/4">
+                      {interview.candidate.fullName}
+                    </td>
+                    <td className="px-6 py-4 w-1/5">
+                      {interview.candidate.email}
+                    </td>
+                    <td className="px-6 py-4">
+                      {new Date(interview.createdAt).toISOString()}
+                    </td>
+                    <td className="px-6 py-4 text-center w-60">
+                      <Link
+                        href={`/interviews/${interview.id}/${interview.status === InterviewStatus.COMPLETED ? 'result' : 'start'}`}
+                        className={blueOutlineBtn}
+                      >
+                        {interview.status === InterviewStatus.COMPLETED ? 'Result' : 'Start'}
+                      </Link>
+                      <button 
+                        onClick={() => onDelete(interview.id)}
+                        type="button" 
+                        className={blueOutlineBtn}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="mt-4">
+              <Pagination
+                page={pagination.page}
+                limit={limit}
+                total={total}
+                length={list.length}
+                onChangePage={onChangePage}
+              />
+            </div>
+          </div>}
+          {!isLoading && data.total === 0 && <div className='text-center text-blue-600 dark:text-blue-500'>
+            <p>There are no tests</p>
+          </div>}
         </div>
       }
       <Modal

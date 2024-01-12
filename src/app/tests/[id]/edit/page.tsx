@@ -96,7 +96,7 @@ const EditPage = () => {
     onSubmit,
   });
 
-  const { handleSubmit, handleChange, values, errors, setFieldValue } = formik;
+  const { handleSubmit, handleChange, values, errors, touched, setFieldValue } = formik;
 
   const onCloseAlert = () => {
     setAlert(undefined);
@@ -237,6 +237,14 @@ const EditPage = () => {
     mutate();
   }
 
+  const onChangeCategoryOrder = async (id: string, order: number) => {
+    if (test) {
+      const body = JSON.stringify({ order: order < 0 ? 0 : order });
+      await categoryFecther.update(id, body);
+    }
+    mutate();
+  }
+
   return (
     <div>
       {isLoading && <div className="text-center"><Spinner/></div>}
@@ -252,26 +260,28 @@ const EditPage = () => {
             method="POST"
             onSubmit={handleSubmit}
           >
-            <div className='grid grid-cols-3'>
-              <div className='col-span-2'>
+            <div>
+              <div>
                 <label
                   htmlFor="email"
-                  className={`block text-sm font-medium leading-6 ${errors.name ? 'text-red-700 dark:text-red-500' : 'text-gray-900'}`}
+                  className={`block text-sm font-medium leading-6 ${touched.name && errors.name ? 'text-red-700 dark:text-red-500' : 'text-gray-900'}`}
                 >
                   Name
                 </label>
                 <div className="mt-2">
-                  <input
-                    id="name"
-                    name="name"
-                    onChange={handleChange}
-                    value={values.name}
-                    className={`block w-full rounded-md ${errors.name ? 'bg-red-50 border border-red-500' : 'border-0'} p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
-                  />
-                  {errors.name && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{errors.name}</p>}
+                  <div>
+                    <input
+                      id="name"
+                      name="name"
+                      onChange={handleChange}
+                      value={values.name}
+                      className={`block w-full rounded-md ${touched.name && errors.name ? 'bg-red-50 border border-red-500' : 'border-0'} p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6`}
+                    />
+                    {touched.name && errors.name && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{errors.name}</p>}
+                  </div>
                 </div>
               </div>
-              <div className='flex place-items-end pl-3'>
+              <div className='mt-1 text-center'>
                 <button
                   type='button'
                   className="font-semibold text-indigo-600 hover:text-indigo-500 leading-10"
@@ -302,6 +312,7 @@ const EditPage = () => {
                   onDeleteQuestion={onDeleteQuestion}
                   onEdit={onEditCategory}
                   onDelete={onDeleteCategory}
+                  onChangeCategoryOrder={onChangeCategoryOrder}
                 />
               )}
             </div>

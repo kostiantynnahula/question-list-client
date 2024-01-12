@@ -141,7 +141,7 @@ const StartPage = () => {
             <div key={i}>
               <p className="mb-3">Category: {category.name}</p>
               <ol key={i} className="relative border-l border-gray-200 dark:border-gray-700 dark:text-gray-400">
-              {category.questions.map((question, i) => (
+              {category.questions?.map((question, i) => (
                 <li key={i} className="mb-10 ml-6">
                   <span className="absolute flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full -left-4 ring-4 ring-white dark:ring-gray-900 dark:bg-gray-700">
                     {answers.correct.includes(question.id) && <CorrectAnswerIcon/>} 
